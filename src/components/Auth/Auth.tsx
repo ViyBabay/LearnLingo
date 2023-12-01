@@ -1,13 +1,42 @@
+import clsx from "clsx";
 import { FiLogIn } from "react-icons/fi";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 
-export const Auth = () => {
+interface AuthProps {
+  toggleMenu?: () => void;
+  status: string;
+}
+
+export const Auth = ({ status, toggleMenu }: AuthProps) => {
+  const router = useRouter();
+
+  const handleNavClick = (path: string) => {
+    if (toggleMenu) toggleMenu();
+    router.push(`/?${path}=true`);
+  };
   return (
-    <div className="flex flex-col items-center justify-center gap-x-4 md:flex-row md: gap-4">
-      <button className="flex gap-2 items-center font-bold text-base/5">
-        <FiLogIn />
+    <div className="flex flex-col items-center justify-center gap-10 md:flex-row md:gap-4 ">
+      <button
+        onClick={() => handleNavClick("login")}
+        className="flex gap-2 items-center text-[26px] font-extrabold md:font-bold md:text-base/5"
+      >
+        <FiLogIn
+          size={30}
+          className={clsx("md:w-5 md:h-5", {
+            "stroke-orange": status === "themaA",
+            "stroke-darkGreen": status === "themaB",
+            "stroke-darkBlue": status === "themaC",
+            "stroke-rose": status === "themaD",
+            "stroke-peach": status === "themaF",
+          })}
+        />
         Log in
       </button>
-      <button className="w-40 h-10 rounded-xl bg-dark text-white font-bold text-base/5">
+      <button
+        onClick={() => handleNavClick("registration")}
+        className="w-48 h-14 md:w-40 md:h-10 rounded-xl bg-dark text-white text-2xl font-extrabold md:font-bold md:text-base/5"
+      >
         Registration
       </button>
     </div>

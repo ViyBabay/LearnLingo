@@ -1,9 +1,6 @@
 import type { Metadata } from "next";
 import { Roboto } from "next/font/google";
 
-import Header from "../components/Header/Header";
-import { statuses } from "../utils/themaApi";
-
 import "./globals.css";
 
 const roboto = Roboto({
@@ -21,13 +18,11 @@ export default async function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const randomIndex = Math.floor(Math.random() * statuses.length);
-
   return (
     <html lang="en">
       <body className={roboto.className}>
-        <Header status={statuses[randomIndex]} />
         {children}
+        <div id="modal-portal"></div>
       </body>
     </html>
   );
