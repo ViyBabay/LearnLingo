@@ -1,11 +1,20 @@
+import { FC } from "react";
 import { SelectInput } from "../SelectInput/SelectInput";
 
-export const TeacherFilterForm = ({ languages, levels, prices }) => {
+interface TeacherFilterFormProps {
+  [key: string]: string[];
+}
+
+export const TeacherFilterForm: FC<TeacherFilterFormProps> = ({
+  languages,
+  levels,
+  prices,
+}) => {
   return (
-    <form className="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
+    <form className="flex flex-col w-max m-auto md:flex-row md:gap-5 md:m-0">
       <SelectInput label="Languages" options={languages} />
-      <SelectInput label="Levels" options={levels} />
-      <SelectInput label="Price Per Hour" options={prices} />
+      <SelectInput label="Level of knowledge" options={levels} />
+      <SelectInput label="Price" options={prices.map((price) => `${price}`)} />
     </form>
   );
 };

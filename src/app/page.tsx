@@ -1,8 +1,11 @@
 import Header from "@/components/Header/Header";
 import { Hero } from "@/components/Hero/Hero";
+import { LoginForm } from "@/components/LoginForm/LoginForm";
 import Modal from "@/components/Modal/Modal";
+import { RegisterForm } from "@/components/RegisterForm/RegisterForm";
 import { Statistics } from "@/components/Statistics/Statistics";
 import { statuses } from "@/utils/themaApi";
+import { Params } from "next/dist/shared/lib/router/utils/route-matcher";
 
 interface HomeProps {
   searchParams: any;
@@ -18,11 +21,19 @@ export default async function Home({ searchParams }: HomeProps) {
   return (
     <>
       <Header status={status} />
-      <main className="flex min-h-screen max-w-[1440px] mx-auto flex-col items-center justify-between px-5">
+      <main className="flex min-h-screen max-w-[1440px] mx-auto flex-col items-center px-5">
         <Hero status={status} />
         <Statistics status={status} />
-        {showLogin && <Modal>modal login</Modal>}
-        {showRegistration && <Modal>modal Register</Modal>}
+        {showLogin && (
+          <Modal>
+            <LoginForm />
+          </Modal>
+        )}
+        {showRegistration && (
+          <Modal>
+            <RegisterForm />
+          </Modal>
+        )}
       </main>
     </>
   );

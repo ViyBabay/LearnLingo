@@ -44,11 +44,12 @@ const Modal = ({ children }: { children: React.ReactNode }) => {
       >
         <div
           ref={wrapper}
-          className="relative w-full sm:w-10/12 md:w-8/12 lg:w-1/2 p-6 bg-white rounded-[15px]"
+          className="relative w-full sm:w-10/12 md:w-8/12 lg:w-1/2 p-10 bg-white rounded-[15px]"
         >
           <IoMdClose
+            size={28}
             onClick={() => onDismiss()}
-            className="absolute top-3 right-3"
+            className="absolute top-3 right-3 "
           />
           {children}
         </div>

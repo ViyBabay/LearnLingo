@@ -1,32 +1,66 @@
+import clsx from "clsx";
+import Header from "@/components/Header/Header";
 import { TeacherFilterForm } from "@/components/TeacherFilterForm/TeacherFilterForm";
-import { getTeachers } from "@/services/api";
+import { TeachersList } from "@/components/TeachersList/TeachersList";
 
-interface Teacher {
-  languages: string[];
-  levels: string[];
-  price_per_hour: number;
-}
+import {
+  getAllTeachersForFilters,
+  getTeachers,
+  getTeachersData,
+} from "@/services/api";
+import { statuses } from "@/utils/themaApi";
 
-const TeachersPage = async () => {
-  const teachersData = await getTeachers();
-
-  const getUniqueValues = (data, key) => {
-    const allValues = data.flatMap((teacher) => teacher[key]);
-    console.log(`allValues:`, allValues);
-
-    return [...new Set(allValues)].sort();
+const TeachersPage = async ({
+  searchParams,
+}: {
+  searchParams?: {
+    languages?: string;
+    level?: string;
+    price?: string;
+    page?: string;
   };
+}) => {
+  const teachersData = await getTeachers();
+  const filterDataArray = await getAllTeachersForFilters();
 
-  const uniqueLanguages = getUniqueValues(teachersData, "languages");
-  const uniqueLevels = getUniqueValues(teachersData, "levels");
-  const uniquePrices = getUniqueValues(teachersData, "price_per_hour");
+  const randomIndex = Math.floor(Math.random() * statuses.length);
+  const status = statuses[randomIndex];
+
+  const languages = searchParams?.languages || "";
+  const levels = searchParams?.level || "";
+  const price = searchParams?.price || "";
+  const page = searchParams?.page || "";
+  const currentPage = Number(searchParams?.page) || 1;
+
+  const data = await getTeachersData(searchParams);
+
+  // console.log("this is data log :", data);
 
   return (
-    <TeacherFilterForm
-      languages={uniqueLanguages}
-      levels={uniqueLevels}
-      prices={uniquePrices}
-    />
+    <>
+      <Header status={status} />
+      <main
+        className={clsx(
+          "flex min-h-screen max-w-[1440px] mx-auto flex-col items-center px-5",
+          {
+            "bg-lightOrange": status === "themaA",
+            "bg-lightGreen": status === "themaB",
+            "bg-lightBlue": status === "themaC",
+            "bg-lightRose": status === "themaD",
+            "bg-lightPeach": status === "themaF",
+          }
+        )}
+      >
+        <section className="py-6 px-4 xl:px-[108px] w-full">
+          <TeacherFilterForm
+            languages={filterDataArray.uniqueLanguages}
+            levels={filterDataArray.uniqueLevels}
+            prices={filterDataArray.uniquePrices}
+          />
+          <TeachersList />
+        </section>
+      </main>
+    </>
   );
 };
 

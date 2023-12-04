@@ -13,7 +13,7 @@ export const NavLink = ({ toggleMenu, status }: NavLinkProps) => {
       md:flex-row "
     >
       <Link
-        href={"/"}
+        href="/"
         className="text-3xl/8 font-medium md:text-base/5 md:font-normal relative group"
         onClick={toggleMenu}
       >
@@ -32,7 +32,7 @@ export const NavLink = ({ toggleMenu, status }: NavLinkProps) => {
         ></span>
       </Link>
       <Link
-        href={"/teachers"}
+        href="/teachers"
         className="text-3xl/8 font-medium md:text-base/5 md:font-normal relative group"
         onClick={toggleMenu}
       >

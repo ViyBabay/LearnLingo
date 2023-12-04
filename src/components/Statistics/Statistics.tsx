@@ -1,41 +1,54 @@
+import clsx from "clsx";
+
 interface StatusProps {
   status: string;
 }
 
 export const Statistics = ({ status }: StatusProps) => {
   return (
-    <div className="block-1 flex items-start">
-      <div className="flex justify-center items-start gap-4">
-        <div className="32_000__ text-[#121417] font-['Roboto'] text-[1.75rem] font-medium leading-8">
+    <div
+      className={clsx(
+        "flex flex-col justify-center items-center w-full gap-10 py-10 mt-6 md:flex-wrap md:flex-row xl:gap-[100px] border-[2px] border-dashed rounded-[15px]",
+        {
+          "border-orange": status === "themaA",
+          "border-darkGreen": status === "themaB",
+          "border-darkBlue": status === "themaC",
+          "border-rose": status === "themaD",
+          "border-peach": status === "themaF",
+        }
+      )}
+    >
+      <div className="flex md:w-1/3 lg:w-auto  gap-x-4  justify-center items-center ">
+        <p className="text-[28px] leading-8 tracking-[-0.56px] font-medium ">
           32,000 +
-        </div>
-        <div className="experienced_tutors w-24 text-[#121417]/[.70] font-['Roboto'] text-sm leading-[1.125rem]">
+        </p>
+        <p className=" leading-[18px] tracking-[-0.28px] w-[90px] text-ligthDark">
           Experienced tutors
-        </div>
+        </p>
       </div>
-      <div className="flex justify-center items-start gap-4">
-        <div className="300_000__ text-[#121417] font-['Roboto'] text-[1.75rem] font-medium leading-8">
+      <div className="flex md:w-1/3 lg:w-auto gap-x-4 justify-center items-center">
+        <p className="text-[28px] leading-8 tracking-[-0.56px] font-medium ">
           300,000 +
-        </div>
-        <div className="5-star_tutor_reviews w-24 text-[#121417]/[.70] font-['Roboto'] text-sm leading-[1.125rem]">
+        </p>
+        <p className="leading-[18px] tracking-[-0.28px] w-[90px] text-ligthDark">
           5-star tutor reviews
-        </div>
+        </p>
       </div>
-      <div className="flex justify-center items-start gap-4">
-        <div className="120__ text-[#121417] font-['Roboto'] text-[1.75rem] font-medium leading-8">
+      <div className="flex md:w-1/3 lg:w-auto gap-x-4  justify-center items-center">
+        <p className="text-[28px] leading-8 tracking-[-0.56px] font-medium ">
           120 +
-        </div>
-        <div className="subjects_taught w-[4.625rem] text-[#121417]/[.70] font-['Roboto'] text-sm leading-[1.125rem]">
+        </p>
+        <p className="leading-[18px] tracking-[-0.28px] w-[90px] text-ligthDark">
           Subjects taught
-        </div>
+        </p>
       </div>
-      <div className="flex justify-center items-start gap-4">
-        <div className="200__ text-[#121417] font-['Roboto'] text-[1.75rem] font-medium leading-8">
+      <div className="flex md:w-1/3 lg:w-auto gap-x-4  justify-center items-center">
+        <p className="text-[28px] leading-8 tracking-[-0.56px] font-medium ">
           200 +
-        </div>
-        <div className="tutor_nationalities w-[4.625rem] text-[#121417]/[.70] font-['Roboto'] text-sm leading-[1.125rem]">
+        </p>
+        <p className="leading-[18px] tracking-[-0.28px] w-[90px] text-ligthDark">
           Tutor nationalities
-        </div>
+        </p>
       </div>
     </div>
   );

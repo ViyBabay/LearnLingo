@@ -1,6 +1,5 @@
 import clsx from "clsx";
 import { FiLogIn } from "react-icons/fi";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 
 interface AuthProps {
@@ -15,6 +14,7 @@ export const Auth = ({ status, toggleMenu }: AuthProps) => {
     if (toggleMenu) toggleMenu();
     router.push(`/?${path}=true`);
   };
+
   return (
     <div className="flex flex-col items-center justify-center gap-10 md:flex-row md:gap-4 ">
       <button
