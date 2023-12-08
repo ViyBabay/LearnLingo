@@ -1,49 +1,45 @@
 'use client';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import { ChangeEvent, FC } from 'react';
+import ReactSelect from 'react-select';
+import { FC } from 'react';
+import { getSelectStyles } from '@/utils/getSelectStyles';
 
 interface SelectInputProps {
   label: string;
   options: string[];
+  width: string;
 }
 
-export const SelectInput: FC<SelectInputProps> = ({ label, options }) => {
+export const SelectInput: FC<SelectInputProps> = ({ label, options, width }) => {
   const queryParams = label.split(' ')[0].toLowerCase();
-
   const searchParams = useSearchParams();
   const pathname = usePathname();
   const { replace } = useRouter();
+
   const selectedValue = searchParams.get(queryParams) || '';
 
-  const handleStatusChange = (e: ChangeEvent<HTMLSelectElement>) => {
-    const value = e.target.value;
+  const handleChange = selectedOption => {
+    const value = selectedOption ? selectedOption.value : '';
     const params = new URLSearchParams(searchParams.toString());
     params.set(queryParams, value);
 
     replace(`${pathname}?${params.toString()}`);
   };
+
+  const selectOptions = options.map(option => ({ value: option, label: option }));
+
+  const selectStyles = getSelectStyles({ width });
+
   return (
     <div className="flex flex-col w-max gap-y-2 ">
       <label className="text-greyLabel text-sm leading-[18px] font-medium ">{label}</label>
-      <select
-        className="py-2 px-[18px] text-[18px] leading-[1.1] font-medium focus:outline-none focus:shadow-outline rounded-[14px]"
-        name={queryParams}
-        value={selectedValue}
-        onChange={handleStatusChange}
-      >
-        <option className="text-[18px] leading-[1.1] font-medium" value="" disabled>
-          ----
-        </option>
-        {options.map(option => (
-          <option
-            className="text-foxDark  text-[18px] leading-[1.1] font-medium"
-            key={option}
-            value={option}
-          >
-            {option}
-          </option>
-        ))}
-      </select>
+      <ReactSelect
+        styles={selectStyles}
+        options={selectOptions}
+        onChange={handleChange}
+        value={selectOptions.find(option => option.value === selectedValue)}
+        placeholder="-------"
+      />
     </div>
   );
 };

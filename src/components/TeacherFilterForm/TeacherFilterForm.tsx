@@ -11,10 +11,14 @@ export const TeacherFilterForm: FC<TeacherFilterFormProps> = ({
   prices,
 }) => {
   return (
-    <form className="flex flex-col w-max m-auto md:flex-row md:gap-5 md:m-0">
-      <SelectInput label="Languages" options={languages} />
-      <SelectInput label="Level of knowledge" options={levels} />
-      <SelectInput label="Price" options={prices.map((price) => `${price}`)} />
+    <form className="flex flex-col w-max m-auto md:flex-row gap-y-5 md:gap-x-5 md:m-0">
+      <SelectInput label="Languages" options={languages} width="202px" />
+      <SelectInput label="Level of knowledge" options={levels} width="239px" />
+      <SelectInput
+        label="Price"
+        options={prices.map((price) => `${price} $`)}
+        width="115px"
+      />
     </form>
   );
 };

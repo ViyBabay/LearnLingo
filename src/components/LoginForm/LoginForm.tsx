@@ -3,6 +3,7 @@
 import { login } from "@/services/api";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import Link from "next/link";
+import { usePathname, useRouter } from "next/navigation";
 import React, { useState } from "react";
 import { LuEyeOff, LuEye } from "react-icons/lu";
 import * as Yup from "yup";
@@ -24,6 +25,8 @@ interface Values {
 export const LoginForm = () => {
   const [showPassword, setShowPassword] = useState(false);
   const initialValues = { email: "", password: "" };
+  const router = useRouter();
+  const pathName = usePathname();
 
   const handleSubmit = async (
     values: Values,
@@ -33,13 +36,14 @@ export const LoginForm = () => {
       console.log(values);
       await login(values);
       resetForm();
+      router.replace(pathName);
     } catch (error) {
       console.log(error);
     }
   };
 
   return (
-    <div className="flex flex-col p-10">
+    <div className="flex flex-col">
       <h1
         style={{ fontSize: "40px" }}
         className="mb-5 font-semibold leading-tight tracking-tight text-gray-900 font-roboto"

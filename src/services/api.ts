@@ -1,21 +1,23 @@
-import {
-  query,
-  orderBy,
-  limit,
-  where,
-  QueryDocumentSnapshot,
-  startAfter,
-  DocumentData,
-} from "firebase/firestore";
-import { auth, db } from "@/firebase/config";
+import { auth, db } from '@/firebase/config';
 import {
   signInWithEmailAndPassword,
   signOut,
   createUserWithEmailAndPassword,
   updateProfile,
   User as FirebaseUser,
-} from "firebase/auth";
-import { collection, getDocs } from "firebase/firestore";
+} from 'firebase/auth';
+import {
+  DocumentSnapshot,
+  collection,
+  doc,
+  documentId,
+  getDoc,
+  getDocs,
+  limit,
+  query,
+  startAfter,
+  where,
+} from 'firebase/firestore';
 
 interface RegisterParams {
   name: string;
@@ -34,11 +36,7 @@ export const register = async ({
   password,
 }: RegisterParams): Promise<UserData | void> => {
   try {
-    const userCredential = await createUserWithEmailAndPassword(
-      auth,
-      email,
-      password
-    );
+    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
 
     const user = auth.currentUser;
 
@@ -65,16 +63,9 @@ interface LoginParams {
   password: string;
 }
 
-export const login = async ({
-  email,
-  password,
-}: LoginParams): Promise<UserData | void> => {
+export const login = async ({ email, password }: LoginParams): Promise<UserData | void> => {
   try {
-    const userCredential = await signInWithEmailAndPassword(
-      auth,
-      email,
-      password
-    );
+    const userCredential = await signInWithEmailAndPassword(auth, email, password);
     const user = userCredential.user;
     const data = {
       name: user.displayName,
@@ -102,10 +93,13 @@ interface Review {
 }
 
 interface Teacher {
+  id: string;
   name: string;
   surname: string;
   languages: string[];
-  levels: string[];
+  levels: {
+    [key: string]: boolean;
+  };
   rating: number;
   reviews: Review[];
   price_per_hour: number;
@@ -116,70 +110,57 @@ interface Teacher {
   experience: string;
 }
 
-export const getTeachers = async () => {
+export const getAllTeachersForFilters = async () => {
   try {
-    const teachersCollection = collection(db, "teachers");
-    const teachersSnapshot = await getDocs(query(teachersCollection, limit(4)));
+    const teachersCollection = collection(db, 'teachers');
+    const teachersSnapshot = await getDocs(teachersCollection);
 
-    const teachersData = teachersSnapshot.docs.map(
-      (doc) => doc.data() as Teacher
-    );
+    const teachersData = teachersSnapshot.docs.map(doc => doc.data());
 
-    return teachersData;
+    const uniqueLanguages = [...new Set(teachersData.flatMap(teacher => teacher.languages))];
+    const uniqueLevels = [...new Set(teachersData.flatMap(teacher => Object.keys(teacher.levels)))];
+    const uniquePrices = [...new Set(teachersData.map(teacher => teacher.price_per_hour))];
+
+    return {
+      uniqueLanguages,
+      uniqueLevels,
+      uniquePrices,
+    };
   } catch (error: any) {
     throw new Error(error.message);
   }
 };
 
-interface FilteredData {
-  teachers: Teacher[];
+interface SearchParams {
+  languages?: string;
+  level?: string;
+  price?: string;
 }
 
-interface Teacher {
-  id: string;
-  name: string;
-  languages: string[];
-  levels: string[];
-  price_per_hour: number;
-}
-
-interface TeachersData {
+interface Result {
   teachers: Teacher[];
-  lastVisible: QueryDocumentSnapshot<DocumentData> | undefined;
+  lastVisible?: DocumentSnapshot;
 }
 
 export const getTeachersData = async (
-  searchParams: { languages?: string; level?: string; price?: string } = {},
-  lastDoc: QueryDocumentSnapshot<DocumentData> | null = null
-): Promise<TeachersData | undefined> => {
+  searchParams: SearchParams = {},
+  lastDoc: DocumentSnapshot | null = null
+): Promise<Result> => {
   const { languages, level, price } = searchParams;
   const pageSize = 4;
+  let q = query(collection(db, 'teachers'));
 
-  console.log(languages);
-  console.log(level);
-  console.log(price);
-
-  let q = query(collection(db, "teachers"));
-
-  // Створюємо масив для фільтрів
-  const filters: any[] = [];
-
-  if (languages && languages !== "---") {
-    filters.push({ field: "languages", value: languages });
+  if (languages && languages !== '---') {
+    q = query(q, where('languages', 'array-contains', languages));
   }
-  if (level && level !== "---") {
-    filters.push({ field: "levels", value: level });
+  if (level && level !== '---') {
+    q = query(q, where(`levels.${level}`, '==', true));
   }
-  if (price && price !== "---") {
-    const priceNumber = Number(price);
+  if (price && price !== '---') {
+    const priceNumber = parseInt(price);
     if (!isNaN(priceNumber)) {
-      filters.push({ field: "price_per_hour", value: priceNumber });
+      q = query(q, where('price_per_hour', '==', priceNumber));
     }
-  }
-
-  // Додаємо фільтри до запиту
-  if (filters.length > 0) {
-    q = query(q, where("filters", "array-contains-any", filters));
   }
 
   if (lastDoc) {
@@ -191,44 +172,84 @@ export const getTeachersData = async (
   try {
     const documentSnapshots = await getDocs(q);
 
-    const teachers = documentSnapshots.docs.map<Teacher>((doc) => ({
-      id: doc.id,
-      ...doc.data(),
-    }));
-    const lastVisible =
-      documentSnapshots.docs[documentSnapshots.docs.length - 1];
+    const userId = auth.currentUser?.uid;
+    const favoritesSnapshot = await getDocs(
+      query(collection(db, 'favorites'), where('userId', '==', userId))
+    );
 
-    console.log("this is teachers:", teachers);
+    const favoriteTeacherIds = favoritesSnapshot.docs.map(doc => doc.data().teacherId);
+    console.log(`favoriteTeacherIds:`, favoriteTeacherIds);
+
+    const teachers: Teacher[] = documentSnapshots.docs.map(doc => {
+      return {
+        id: doc.id,
+        ...doc.data(),
+        favorite: favoriteTeacherIds.includes(doc.id),
+      };
+    });
+    console.log(`teachers:`, teachers);
+
+    const lastVisible = documentSnapshots.docs[documentSnapshots.docs.length - 1];
+
     return { teachers, lastVisible };
   } catch (error: any) {
-    console.error("Error in getTeachersData:", error);
+    console.error('Error in getTeachersData:', error);
+    throw new Error('Error in getTeachersData: ' + error.message);
   }
 };
 
-// Функция для получения всех учителей для фильтров
-export const getAllTeachersForFilters = async () => {
+export const getFavorites = async (searchParams = {}, lastDoc = null) => {
+  const userId = auth.currentUser?.uid;
+  if (!userId) {
+    throw new Error('user is not authorized');
+  }
+
+  const { languages, level, price } = searchParams;
+  const pageSize = 4;
+
+  const favoritesRef = collection(db, 'favorites');
+  const favQuery = query(favoritesRef, where('userId', '==', userId));
+  const favoritesSnapshot = await getDocs(favQuery);
+  const favoriteTeacherIds = favoritesSnapshot.docs.map(doc => doc.data().teacherId);
+
+  let teacherQuery = query(
+    collection(db, 'teachers'),
+    where(documentId(), 'in', favoriteTeacherIds)
+  );
+
+  if (languages && languages !== '---') {
+    teacherQuery = query(teacherQuery, where('languages', 'array-contains', languages));
+  }
+  if (level && level !== '---') {
+    teacherQuery = query(teacherQuery, where(`levels.${level}`, '==', true));
+  }
+  if (price && price !== '---') {
+    const priceNumber = parseInt(price);
+    if (!isNaN(priceNumber)) {
+      teacherQuery = query(teacherQuery, where('price_per_hour', '==', priceNumber));
+    }
+  }
+
+  if (lastDoc) {
+    teacherQuery = query(teacherQuery, startAfter(lastDoc), limit(pageSize));
+  } else {
+    teacherQuery = query(teacherQuery, limit(pageSize));
+  }
+
   try {
-    const teachersCollection = collection(db, "teachers");
-    const teachersSnapshot = await getDocs(teachersCollection);
+    const teacherSnapshots = await getDocs(teacherQuery);
 
-    const teachersData = teachersSnapshot.docs.map((doc) => doc.data());
+    const teachers = teacherSnapshots.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data(),
+      favorite: true,
+    }));
 
-    const uniqueLanguages = [
-      ...new Set(teachersData.flatMap((teacher) => teacher.languages)),
-    ];
-    const uniqueLevels = [
-      ...new Set(teachersData.flatMap((teacher) => teacher.levels)),
-    ];
-    const uniquePrices = [
-      ...new Set(teachersData.flatMap((teacher) => teacher.price_per_hour)),
-    ];
+    const lastVisible = teacherSnapshots.docs[teacherSnapshots.docs.length - 1];
 
-    return {
-      uniqueLanguages,
-      uniqueLevels,
-      uniquePrices,
-    };
-  } catch (error: any) {
-    throw new Error(error.message);
+    return { teachers, lastVisible };
+  } catch (error) {
+    console.error('Error in getFavorites:', error);
+    throw new Error('Error in getFavorites: ' + error.message);
   }
 };

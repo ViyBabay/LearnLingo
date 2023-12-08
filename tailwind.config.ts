@@ -11,6 +11,7 @@ const config: Config = {
       colors: {
         dark: "#121417",
         foxDark: "#12141733",
+        lightBlack: "rgba(0, 0, 0, 0.60)",
         lightDark: "rgba(18, 20, 23, 0.70)",
         lightGrey: "rgba(18, 20, 23, 0.20)",
         orange: "#F4C550",
@@ -30,6 +31,7 @@ const config: Config = {
         heroBg: "#F8F8F8",
         greyLabel: "#8A8A89",
         goldStar: "#FFC531",
+        foxGreen: "#44e49db3",
       },
       backgroundImage: {
         tumbaThemaA: "linear-gradient(180deg, #EEB055 0%, #D08F38 100%)",

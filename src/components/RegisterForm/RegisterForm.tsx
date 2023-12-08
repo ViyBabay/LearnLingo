@@ -3,6 +3,7 @@
 import { register } from "@/services/api";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import Link from "next/link";
+import { usePathname, useRouter } from "next/navigation";
 import React, { useState } from "react";
 import { LuEyeOff, LuEye } from "react-icons/lu";
 import * as Yup from "yup";
@@ -26,16 +27,17 @@ interface Values {
 export const RegisterForm = () => {
   const [showPassword, setShowPassword] = useState(false);
   const initialValues = { name: "", email: "", password: "" };
+  const router = useRouter();
+  const pathName = usePathname();
 
   const handleSubmit = async (
     values: Values,
     { resetForm }: { resetForm: () => void }
   ) => {
     try {
-      console.log("Form values:", values);
-      const data = await register(values);
-      console.log(data);
+      await register(values);
       resetForm();
+      router.replace(pathName);
     } catch (error) {
       console.log(error);
     }

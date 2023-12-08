@@ -3,12 +3,9 @@ import Header from "@/components/Header/Header";
 import { TeacherFilterForm } from "@/components/TeacherFilterForm/TeacherFilterForm";
 import { TeachersList } from "@/components/TeachersList/TeachersList";
 
-import {
-  getAllTeachersForFilters,
-  getTeachers,
-  getTeachersData,
-} from "@/services/api";
+import { getAllTeachersForFilters } from "@/services/api";
 import { statuses } from "@/utils/themaApi";
+import { AttentionModal } from "@/components/AttentionModal/AttentionModal";
 
 const TeachersPage = async ({
   searchParams,
@@ -18,23 +15,13 @@ const TeachersPage = async ({
     level?: string;
     price?: string;
     page?: string;
+    attention?: string;
   };
 }) => {
-  const teachersData = await getTeachers();
   const filterDataArray = await getAllTeachersForFilters();
 
   const randomIndex = Math.floor(Math.random() * statuses.length);
   const status = statuses[randomIndex];
-
-  const languages = searchParams?.languages || "";
-  const levels = searchParams?.level || "";
-  const price = searchParams?.price || "";
-  const page = searchParams?.page || "";
-  const currentPage = Number(searchParams?.page) || 1;
-
-  const data = await getTeachersData(searchParams);
-
-  // console.log("this is data log :", data);
 
   return (
     <>
@@ -57,7 +44,7 @@ const TeachersPage = async ({
             levels={filterDataArray.uniqueLevels}
             prices={filterDataArray.uniquePrices}
           />
-          <TeachersList />
+          <TeachersList searchParams={searchParams} status={status} />
         </section>
       </main>
     </>
