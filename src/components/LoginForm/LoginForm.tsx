@@ -32,6 +32,7 @@ export const LoginForm = () => {
     values: Values,
     { resetForm }: { resetForm: () => void }
   ) => {
+    document.body.style.overflow = "auto";
     try {
       console.log(values);
       await login(values);

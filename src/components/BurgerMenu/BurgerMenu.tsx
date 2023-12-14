@@ -28,10 +28,15 @@ export const BurgerMenu = ({ status, handleNavClick }: BurgerProps) => {
   }, []);
 
   const toggleMenu = () => {
+    const body = document.body;
+    const newOverflow = body.style.overflow === "hidden" ? "auto" : "hidden";
+
+    body.style.overflow = newOverflow;
     setIsOpen((prevIsOpen) => !prevIsOpen);
   };
 
   const handleClick = (path: string) => {
+    document.body.style.overflow = "hidden";
     if (toggleMenu) toggleMenu();
     handleNavClick(path);
   };

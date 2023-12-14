@@ -1,11 +1,11 @@
-import { auth, db } from '@/firebase/config';
+import { auth, db } from "@/firebase/config";
 import {
   signInWithEmailAndPassword,
   signOut,
   createUserWithEmailAndPassword,
   updateProfile,
   User as FirebaseUser,
-} from 'firebase/auth';
+} from "firebase/auth";
 import {
   DocumentSnapshot,
   collection,
@@ -17,7 +17,7 @@ import {
   query,
   startAfter,
   where,
-} from 'firebase/firestore';
+} from "firebase/firestore";
 
 interface RegisterParams {
   name: string;
@@ -36,9 +36,13 @@ export const register = async ({
   password,
 }: RegisterParams): Promise<UserData | void> => {
   try {
-    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+    const userCredential = await createUserWithEmailAndPassword(
+      auth,
+      email,
+      password
+    );
 
-    const user = auth.currentUser;
+    const user = userCredential.user;
 
     if (user) {
       const typedUser: FirebaseUser = user;
@@ -63,9 +67,16 @@ interface LoginParams {
   password: string;
 }
 
-export const login = async ({ email, password }: LoginParams): Promise<UserData | void> => {
+export const login = async ({
+  email,
+  password,
+}: LoginParams): Promise<UserData | void> => {
   try {
-    const userCredential = await signInWithEmailAndPassword(auth, email, password);
+    const userCredential = await signInWithEmailAndPassword(
+      auth,
+      email,
+      password
+    );
     const user = userCredential.user;
     const data = {
       name: user.displayName,
@@ -108,18 +119,27 @@ interface Teacher {
   lesson_info: string;
   conditions: string[];
   experience: string;
+  favorite: boolean;
 }
 
 export const getAllTeachersForFilters = async () => {
   try {
-    const teachersCollection = collection(db, 'teachers');
+    const teachersCollection = collection(db, "teachers");
     const teachersSnapshot = await getDocs(teachersCollection);
 
-    const teachersData = teachersSnapshot.docs.map(doc => doc.data());
+    const teachersData = teachersSnapshot.docs.map((doc) => doc.data());
 
-    const uniqueLanguages = [...new Set(teachersData.flatMap(teacher => teacher.languages))];
-    const uniqueLevels = [...new Set(teachersData.flatMap(teacher => Object.keys(teacher.levels)))];
-    const uniquePrices = [...new Set(teachersData.map(teacher => teacher.price_per_hour))];
+    const uniqueLanguages = [
+      ...new Set(teachersData.flatMap((teacher) => teacher.languages)),
+    ];
+    const uniqueLevels = [
+      ...new Set(
+        teachersData.flatMap((teacher) => Object.keys(teacher.levels))
+      ),
+    ];
+    const uniquePrices = [
+      ...new Set(teachersData.map((teacher) => teacher.price_per_hour)),
+    ];
 
     return {
       uniqueLanguages,
@@ -148,18 +168,18 @@ export const getTeachersData = async (
 ): Promise<Result> => {
   const { languages, level, price } = searchParams;
   const pageSize = 4;
-  let q = query(collection(db, 'teachers'));
+  let q = query(collection(db, "teachers"));
 
-  if (languages && languages !== '---') {
-    q = query(q, where('languages', 'array-contains', languages));
+  if (languages && languages !== "---") {
+    q = query(q, where("languages", "array-contains", languages));
   }
-  if (level && level !== '---') {
-    q = query(q, where(`levels.${level}`, '==', true));
+  if (level && level !== "---") {
+    q = query(q, where(`levels.${level}`, "==", true));
   }
-  if (price && price !== '---') {
+  if (price && price !== "---") {
     const priceNumber = parseInt(price);
     if (!isNaN(priceNumber)) {
-      q = query(q, where('price_per_hour', '==', priceNumber));
+      q = query(q, where("price_per_hour", "==", priceNumber));
     }
   }
 
@@ -171,85 +191,81 @@ export const getTeachersData = async (
 
   try {
     const documentSnapshots = await getDocs(q);
+    let favoriteTeacherIds = [];
 
-    const userId = auth.currentUser?.uid;
-    const favoritesSnapshot = await getDocs(
-      query(collection(db, 'favorites'), where('userId', '==', userId))
-    );
+    if (auth.currentUser) {
+      const userId = auth.currentUser.uid;
+      const favoritesSnapshot = await getDocs(
+        query(collection(db, "favorites"), where("userId", "==", userId))
+      );
 
-    const favoriteTeacherIds = favoritesSnapshot.docs.map(doc => doc.data().teacherId);
-    console.log(`favoriteTeacherIds:`, favoriteTeacherIds);
+      favoriteTeacherIds = favoritesSnapshot.docs.map(
+        (doc) => doc.data().teacherId
+      );
+      console.log(`favoriteTeacherIds:`, favoriteTeacherIds);
+    } else {
+      console.log("User is not logged in, skipping favorites query.");
+    }
 
-    const teachers: Teacher[] = documentSnapshots.docs.map(doc => {
+    const teachers: Teacher[] = documentSnapshots.docs.map((doc) => {
+      const isFavorite = favoriteTeacherIds.includes(doc.id);
       return {
         id: doc.id,
         ...doc.data(),
-        favorite: favoriteTeacherIds.includes(doc.id),
-      };
+        favorite: isFavorite,
+      } as Teacher;
     });
-    console.log(`teachers:`, teachers);
 
-    const lastVisible = documentSnapshots.docs[documentSnapshots.docs.length - 1];
+    const lastVisible =
+      documentSnapshots.docs[documentSnapshots.docs.length - 1];
 
     return { teachers, lastVisible };
   } catch (error: any) {
-    console.error('Error in getTeachersData:', error);
-    throw new Error('Error in getTeachersData: ' + error.message);
+    console.error("Error in getTeachersData:", error);
+    throw new Error("Error in getTeachersData: " + error.message);
   }
 };
 
-export const getFavorites = async (searchParams = {}, lastDoc = null) => {
+export const getFavorites = async (
+  lastDoc: DocumentSnapshot | null = null,
+  pageSize: number = 4
+) => {
   const userId = auth.currentUser?.uid;
   if (!userId) {
-    throw new Error('user is not authorized');
-  }
-
-  const { languages, level, price } = searchParams;
-  const pageSize = 4;
-
-  const favoritesRef = collection(db, 'favorites');
-  const favQuery = query(favoritesRef, where('userId', '==', userId));
-  const favoritesSnapshot = await getDocs(favQuery);
-  const favoriteTeacherIds = favoritesSnapshot.docs.map(doc => doc.data().teacherId);
-
-  let teacherQuery = query(
-    collection(db, 'teachers'),
-    where(documentId(), 'in', favoriteTeacherIds)
-  );
-
-  if (languages && languages !== '---') {
-    teacherQuery = query(teacherQuery, where('languages', 'array-contains', languages));
-  }
-  if (level && level !== '---') {
-    teacherQuery = query(teacherQuery, where(`levels.${level}`, '==', true));
-  }
-  if (price && price !== '---') {
-    const priceNumber = parseInt(price);
-    if (!isNaN(priceNumber)) {
-      teacherQuery = query(teacherQuery, where('price_per_hour', '==', priceNumber));
-    }
-  }
-
-  if (lastDoc) {
-    teacherQuery = query(teacherQuery, startAfter(lastDoc), limit(pageSize));
-  } else {
-    teacherQuery = query(teacherQuery, limit(pageSize));
+    throw new Error("User is not authorized");
   }
 
   try {
-    const teacherSnapshots = await getDocs(teacherQuery);
+    let q = query(collection(db, "favorites"), where("userId", "==", userId));
 
-    const teachers = teacherSnapshots.docs.map(doc => ({
-      id: doc.id,
-      ...doc.data(),
-      favorite: true,
-    }));
+    if (lastDoc) {
+      q = query(q, startAfter(lastDoc), limit(pageSize));
+    } else {
+      q = query(q, limit(pageSize));
+    }
 
-    const lastVisible = teacherSnapshots.docs[teacherSnapshots.docs.length - 1];
+    const querySnapshot = await getDocs(q);
+    const favorites = querySnapshot.docs.map((doc) => doc.data().teacherId);
 
+    const teachers = [];
+    for (const teacherId of favorites) {
+      const docRef = doc(db, "teachers", teacherId);
+      const docSnap = await getDoc(docRef);
+      if (docSnap.exists()) {
+        teachers.push({
+          id: docSnap.id,
+          ...docSnap.data(),
+          favorite: true,
+        });
+      }
+    }
+
+    const lastVisible = querySnapshot.docs[querySnapshot.docs.length - 1];
     return { teachers, lastVisible };
   } catch (error) {
-    console.error('Error in getFavorites:', error);
-    throw new Error('Error in getFavorites: ' + error.message);
+    console.error("Error:", error);
+    throw error;
   }
 };
+
+export const getTrialTeacher = async () => {};

@@ -1,14 +1,15 @@
-'use client';
+"use client";
 
-import { PiBookOpenLight, PiStarFill } from 'react-icons/pi';
-import { TeacherAvatar } from '../TeacherAvatar/TeacherAvatar';
-import { TeacherLike } from '../TeacherLike/TeacherLike';
-import { TeacherReadMore } from '../TeacherReadMore/TeacherReadMore';
-import { TeacherButtonTrialLesson } from '../TeacherButtonTrialLesson/TeacherButtonTrialLesson';
-import { useEffect, useState } from 'react';
-import { auth } from '@/firebase/config';
-import { User, onAuthStateChanged } from 'firebase/auth';
-import { usePathname, useRouter, useSearchParams } from 'next/navigation';
+import { PiBookOpenLight, PiStarFill } from "react-icons/pi";
+import { TeacherAvatar } from "../TeacherAvatar/TeacherAvatar";
+import { TeacherLike } from "../TeacherLike/TeacherLike";
+import { TeacherReadMore } from "../TeacherReadMore/TeacherReadMore";
+import { TeacherButtonTrialLesson } from "../TeacherButtonTrialLesson/TeacherButtonTrialLesson";
+import { useEffect, useState } from "react";
+import { auth } from "@/firebase/config";
+import { User, onAuthStateChanged } from "firebase/auth";
+import { usePathname, useRouter } from "next/navigation";
+import { TeachersLevelsList } from "../TeachersLevelsList/TeachersLevelsList";
 
 interface Review {
   reviewer_name: string;
@@ -37,32 +38,34 @@ interface TeacherProps {
   status: string;
 }
 
-export const TeacherItem = ({ item, status, onFavoriteChange }: TeacherProps) => {
+export const TeacherItem = ({
+  item,
+  status,
+  onFavoriteChange,
+}: TeacherProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const [isUser, setIsUser] = useState<User | null>(null);
-  const [isOpenModal, setIsOpenModal] = useState(false);
 
-  const searchParams = useSearchParams();
   const router = useRouter();
   const pathName = usePathname();
 
   useEffect(() => {
-    onAuthStateChanged(auth, user => {
+    onAuthStateChanged(auth, (user) => {
       if (user) {
         setIsUser(user);
+      } else {
+        setIsUser(null);
       }
     });
   }, []);
 
   const handleAuthCheck = (path: string) => {
-    if (!isUser) {
-      router.push(`${pathName}/?${path}=true`);
-      setIsOpenModal(pre => !pre);
-    }
+    document.body.style.overflow = "hidden";
+    router.push(`${pathName}/?${path}=true`);
   };
 
   const toggleDetails = () => {
-    setIsOpen(pre => !pre);
+    setIsOpen((pre) => !pre);
   };
 
   return (
@@ -92,14 +95,18 @@ export const TeacherItem = ({ item, status, onFavoriteChange }: TeacherProps) =>
               </li>
               <li>
                 <p>
-                  Price / 1 hour: <span className="text-green">{item.price_per_hour} $</span>
+                  Price / 1 hour:{" "}
+                  <span className="text-green">{item.price_per_hour} $</span>
                 </p>
               </li>
             </ul>
             <TeacherLike
-              onFavoriteChange={onFavoriteChange}
-              handleAuthCheck={() => handleAuthCheck('attention')}
+              onFavoriteChange={() => onFavoriteChange(item.id)}
+              handleAuthCheck={
+                isUser ? null : () => handleAuthCheck("attention")
+              }
               id={item.id}
+              isUser={isUser}
             />
           </div>
         </div>
@@ -109,15 +116,21 @@ export const TeacherItem = ({ item, status, onFavoriteChange }: TeacherProps) =>
             {item.name} {item.surname}
           </p>
           <p className="mb-2 font-medium leading-6 ">
-            <span className="text-greyLabel font-medium leading-6">Speaks: </span>
-            <span className="underline"> {item.languages.join(', ')}</span>
+            <span className="text-greyLabel font-medium leading-6">
+              Speaks:{" "}
+            </span>
+            <span className="underline"> {item.languages.join(", ")}</span>
           </p>
           <p className="mb-2 font-medium leading-6">
-            <span className="text-greyLabel font-medium leading-6">Lesson info: </span>
+            <span className="text-greyLabel font-medium leading-6">
+              Lesson info:{" "}
+            </span>
             {item.lesson_info}
           </p>
           <p className="mb-4 font-medium leading-6">
-            <span className="text-greyLabel font-medium leading-6">Conditions: </span>
+            <span className="text-greyLabel font-medium leading-6">
+              Conditions:{" "}
+            </span>
             {item.conditions}
           </p>
           <details>
@@ -130,15 +143,16 @@ export const TeacherItem = ({ item, status, onFavoriteChange }: TeacherProps) =>
 
             <TeacherReadMore item={item} status={status} />
           </details>
-          <ul className="flex flex-wrap items-center gap-2 xl:gap-x-2 font-medium leading-6">
-            {Object.keys(item.levels).map((level: string, index: number) => (
-              <li key={index} className="py-2 px-3 rounded-[35px] border-[1px] border-lightGrey">
-                <p>#{level}</p>
-              </li>
-            ))}
-          </ul>
+          <TeachersLevelsList levels={item.levels} />
           {isOpen && (
-            <TeacherButtonTrialLesson handleAuthCheck={() => handleAuthCheck('attention')} />
+            <TeacherButtonTrialLesson
+              name={item.name}
+              surname={item.surname}
+              avatarUrl={item.avatar_url}
+              handleAuthCheck={() =>
+                handleAuthCheck(isUser ? "trial" : "attention")
+              }
+            />
           )}
         </div>
       </div>

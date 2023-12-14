@@ -34,6 +34,7 @@ export const RegisterForm = () => {
     values: Values,
     { resetForm }: { resetForm: () => void }
   ) => {
+    document.body.style.overflow = "auto";
     try {
       await register(values);
       resetForm();

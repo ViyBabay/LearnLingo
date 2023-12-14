@@ -41,28 +41,42 @@ const Header: React.FC<HeaderProps> = ({ status }) => {
   const showRegistration = searchParams.get("registration");
   const showLogout = searchParams.get("logout");
 
-  console.log("Consol showLogin:", showLogin);
-
-  console.log("Consol showRegistration:", showRegistration);
-
   const handleClick = (path: string) => {
+    document.body.style.overflow = "hidden";
     router.push(`${pathName}/?${path}=true`);
   };
 
   useEffect(() => {
+    let isComponentMounted = true;
+
     onAuthStateChanged(auth, (user) => {
-      if (user) {
-        setUserName(user.displayName);
-        setIsLoggedIn(true);
-        setIsLoading(false);
-      } else {
+      if (user && isComponentMounted) {
+        if (user.displayName) {
+          setUserName(user.displayName);
+          setIsLoggedIn(true);
+        } else {
+          const timeoutId = setTimeout(() => {
+            setUserName(user.reload().then(() => user.displayName));
+            setIsLoggedIn(true);
+          }, 1000);
+          return () => {
+            clearTimeout(timeoutId);
+          };
+        }
+      } else if (isComponentMounted) {
+        setUserName(null);
         setIsLoggedIn(false);
+      }
+      if (isComponentMounted) {
         setIsLoading(false);
       }
+      setShowOnMobile(isMobile);
+      setShowOnTable(isTablet);
     });
 
-    setShowOnMobile(isMobile);
-    setShowOnTable(isTablet);
+    return () => {
+      isComponentMounted = false;
+    };
   }, [isMobile, isTablet]);
 
   return (
@@ -75,7 +89,7 @@ const Header: React.FC<HeaderProps> = ({ status }) => {
             <Logo variant="header" />
             {showOnTablet && (
               <>
-                <NavLink status={status} />
+                <NavLink status={status} isLoggedIn={isLoggedIn} />
                 {isLoggedIn ? (
                   <UserBar
                     handleClick={handleClick}

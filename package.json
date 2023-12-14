@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@types/yup": "^0.32.0",
     "clsx": "^2.0.0",
     "firebase": "^10.6.0",
     "formik": "^2.4.5",

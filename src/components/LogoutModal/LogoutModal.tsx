@@ -13,7 +13,13 @@ export const LogoutModal = ({ status }: LogoutModalProps) => {
   const router = useRouter();
 
   const handleLogOut = async () => {
+    document.body.style.overflow = "auto";
     await logout();
+    router.back();
+  };
+
+  const handleClose = () => {
+    document.body.style.overflow = "auto";
     router.back();
   };
 
@@ -42,7 +48,7 @@ export const LogoutModal = ({ status }: LogoutModalProps) => {
             Yes
           </button>
           <button
-            onClick={() => router.back()}
+            onClick={handleClose}
             className={clsx(
               "w-full h-14 md:w-40 md:h-10 rounded-xl bg-dark text-white hover:text-dark text-2xl font-extrabold md:font-bold hover:scale-105 transition-all duration-300",
               {

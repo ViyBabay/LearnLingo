@@ -5,12 +5,19 @@ import { useRouter } from "next/navigation";
 import { ModalPortal } from "../ModalPortal/ModalPortal";
 import { IoMdClose } from "react-icons/io";
 
-const Modal = ({ children }: { children: React.ReactNode }) => {
+const Modal = ({
+  children,
+  variant,
+}: {
+  children: React.ReactNode;
+  variant?: string;
+}) => {
   const overlay = useRef(null);
   const wrapper = useRef(null);
   const router = useRouter();
 
   const onDismiss = useCallback(() => {
+    document.body.style.overflow = "auto";
     router.back();
   }, [router]);
 
@@ -39,7 +46,9 @@ const Modal = ({ children }: { children: React.ReactNode }) => {
     <ModalPortal>
       <div
         ref={overlay}
-        className="fixed top-0 left-0 flex justify-center items-center z-10 w-screen h-screen px-5 bg-lightBlack"
+        className={`${
+          variant === "trial" ? "items-start py-10" : "items-center"
+        } fixed top-0 left-0 flex justify-center z-10 w-screen h-screen px-5 bg-lightBlack overflow-auto`}
         onClick={onClick}
       >
         <div
@@ -48,9 +57,10 @@ const Modal = ({ children }: { children: React.ReactNode }) => {
         >
           <button
             type="button"
-            className="absolute top-3 right-3 hover:scale-125 transition-transform duration-300"
+            className="absolute top-5 right-5 hover:scale-125 transition-transform duration-300"
+            onClick={() => onDismiss()}
           >
-            <IoMdClose size={28} onClick={() => onDismiss()} />
+            <IoMdClose size={28} />
           </button>
           {children}
         </div>

@@ -10,14 +10,6 @@ interface UserBarProps {
 }
 
 export const UserBar = ({ userName, status, handleClick }: UserBarProps) => {
-  const textStyles = {
-    themaA: "text-orange",
-    themaB: "text-darkGreen",
-    themaC: "text-darkBlue",
-    themaD: "text-rose",
-    themaF: "text-peach",
-  };
-
   return (
     <div className="flex flex-col-reverse md:flex-row items-center md:gap-x-4 gap-y-10">
       <button
@@ -37,12 +29,7 @@ export const UserBar = ({ userName, status, handleClick }: UserBarProps) => {
         />
         Log out
       </button>
-      <p
-        className={clsx(
-          "p-[12px] rounded-xl bg-dark font-extrabold md:font-bold md:text-base/5",
-          textStyles[status]
-        )}
-      >
+      <p className="p-[12px] rounded-xl bg-dark text-white font-extrabold md:font-bold md:text-base/5">
         Hello, {userName}!
       </p>
     </div>
