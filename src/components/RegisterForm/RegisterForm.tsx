@@ -1,22 +1,12 @@
-"use client";
+'use client';
 
-import { register } from "@/services/api";
-import { Formik, Form, Field, ErrorMessage } from "formik";
-import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
-import React, { useState } from "react";
-import { LuEyeOff, LuEye } from "react-icons/lu";
-import * as Yup from "yup";
-
-const validationSchema = Yup.object({
-  name: Yup.string().required("Name is required"),
-  email: Yup.string()
-    .email("Invalid email address")
-    .required("Email is required"),
-  password: Yup.string()
-    .min(8, "Password must be at least 8 characters")
-    .required("Password is required"),
-});
+import React, { useState } from 'react';
+import * as Yup from 'yup';
+import { Formik, Form, Field, ErrorMessage } from 'formik';
+import { LuEyeOff, LuEye } from 'react-icons/lu';
+import { usePathname, useRouter } from 'next/navigation';
+import { register } from '@/services/api';
+import { validationSchema } from '@/utils/registerValidationThema';
 
 interface Values {
   name: string;
@@ -26,15 +16,12 @@ interface Values {
 
 export const RegisterForm = () => {
   const [showPassword, setShowPassword] = useState(false);
-  const initialValues = { name: "", email: "", password: "" };
+  const initialValues = { name: '', email: '', password: '' };
   const router = useRouter();
   const pathName = usePathname();
 
-  const handleSubmit = async (
-    values: Values,
-    { resetForm }: { resetForm: () => void }
-  ) => {
-    document.body.style.overflow = "auto";
+  const handleSubmit = async (values: Values, { resetForm }: { resetForm: () => void }) => {
+    document.body.style.overflow = 'auto';
     try {
       await register(values);
       resetForm();
@@ -47,14 +34,14 @@ export const RegisterForm = () => {
   return (
     <div className="flex flex-col">
       <h1
-        style={{ fontSize: "40px" }}
+        style={{ fontSize: '40px' }}
         className="mb-5 font-semibold leading-tight tracking-tight text-gray-900 font-roboto"
       >
         Registration
       </h1>
       <p className="mb-10">
-        Thank you for your interest in our platform! In order to register, we
-        need some information. Please provide us with the following information
+        Thank you for your interest in our platform! In order to register, we need some information.
+        Please provide us with the following information
       </p>
       <Formik
         onSubmit={handleSubmit}
@@ -93,7 +80,7 @@ export const RegisterForm = () => {
 
           <div className="relative w-full">
             <Field
-              type={showPassword ? "text" : "password"}
+              type={showPassword ? 'text' : 'password'}
               name="password"
               placeholder="Password"
               className="text-base pl-4 py-4 border border-gray-300 rounded-xl placeholder-black min-w-190 max-w-440 w-full

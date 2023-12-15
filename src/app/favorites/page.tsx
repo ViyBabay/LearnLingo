@@ -1,14 +1,20 @@
 'use client';
-import Header from '@/components/Header/Header';
-import { TeacherItem } from '@/components/TeacherItem/TeacherItem';
-import { TeachersList } from '@/components/TeachersList/TeachersList';
-import { statuses } from '@/utils/themaApi';
 import clsx from 'clsx';
+import { FC } from 'react';
 
+import Header from '@/components/Header/Header';
+import { TeachersList } from '@/components/TeachersList/TeachersList';
 
-const FavoritesPage = () => {
+import { SearchParams } from '@/utils/definitions';
+import { statuses } from '@/utils/themaApi';
+
+interface FavoritesPageProps {
+  searchParams: SearchParams;
+}
+
+const FavoritesPage: FC<FavoritesPageProps> = ({ searchParams }) => {
   const randomIndex = Math.floor(Math.random() * statuses.length);
-  const status = statuses[randomIndex];  
+  const status = statuses[randomIndex];
 
   return (
     <>
@@ -23,7 +29,7 @@ const FavoritesPage = () => {
         })}
       >
         <section className="py-6 px-4 xl:px-[108px] w-full">
-          <TeachersList status={status} />
+          <TeachersList searchParams={searchParams} status={status} />
         </section>
       </main>
     </>

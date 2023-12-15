@@ -1,21 +1,11 @@
-"use client";
+'use client';
 
-import { login } from "@/services/api";
-import { Formik, Form, Field, ErrorMessage } from "formik";
-import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
-import React, { useState } from "react";
-import { LuEyeOff, LuEye } from "react-icons/lu";
-import * as Yup from "yup";
-
-const validationSchema = Yup.object({
-  email: Yup.string()
-    .email("Invalid email address")
-    .required("Email is required"),
-  password: Yup.string()
-    .min(8, "Password must be at least 8 characters")
-    .required("Password is required"),
-});
+import React, { useState } from 'react';
+import { Formik, Form, Field, ErrorMessage } from 'formik';
+import { usePathname, useRouter } from 'next/navigation';
+import { LuEyeOff, LuEye } from 'react-icons/lu';
+import { login } from '@/services/api';
+import { validationSchema } from '@/utils/loginValidationThema';
 
 interface Values {
   email: string;
@@ -24,17 +14,13 @@ interface Values {
 
 export const LoginForm = () => {
   const [showPassword, setShowPassword] = useState(false);
-  const initialValues = { email: "", password: "" };
+  const initialValues = { email: '', password: '' };
   const router = useRouter();
   const pathName = usePathname();
 
-  const handleSubmit = async (
-    values: Values,
-    { resetForm }: { resetForm: () => void }
-  ) => {
-    document.body.style.overflow = "auto";
+  const handleSubmit = async (values: Values, { resetForm }: { resetForm: () => void }) => {
+    document.body.style.overflow = 'auto';
     try {
-      console.log(values);
       await login(values);
       resetForm();
       router.replace(pathName);
@@ -46,14 +32,14 @@ export const LoginForm = () => {
   return (
     <div className="flex flex-col">
       <h1
-        style={{ fontSize: "40px" }}
+        style={{ fontSize: '40px' }}
         className="mb-5 font-semibold leading-tight tracking-tight text-gray-900 font-roboto"
       >
         Log In
       </h1>
       <p className="mb-10">
-        Welcome back! Please enter your credentials to access your account and
-        continue your search for an teacher.
+        Welcome back! Please enter your credentials to access your account and continue your search
+        for an teacher.
       </p>
       <Formik
         onSubmit={handleSubmit}
@@ -78,7 +64,7 @@ export const LoginForm = () => {
 
           <div className="relative w-full">
             <Field
-              type={showPassword ? "text" : "password"}
+              type={showPassword ? 'text' : 'password'}
               name="password"
               placeholder="Password"
               className="text-base pl-4 py-4 border border-gray-300 rounded-xl placeholder-black min-w-190 max-w-440 w-full

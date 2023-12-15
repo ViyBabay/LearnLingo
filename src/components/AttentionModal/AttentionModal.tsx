@@ -1,14 +1,17 @@
-"use client";
+'use client';
+import { FC } from 'react';
+import { usePathname, useRouter } from 'next/navigation';
 
-import { usePathname, useRouter } from "next/navigation";
-import { Auth } from "../Auth/Auth";
-import Modal from "../Modal/Modal";
+import { Auth } from '../Auth/Auth';
+import Modal from '../Modal/Modal';
 
-interface AttentionProps {
-  status: string;
+import { Thema } from '@/utils/definitions';
+
+interface AttentionModalProps {
+  status: Thema;
 }
 
-export const AttentionModal = ({ status }: AttentionProps) => {
+export const AttentionModal: FC<AttentionModalProps> = ({ status }) => {
   const router = useRouter();
   const pathName = usePathname();
 
@@ -21,10 +24,9 @@ export const AttentionModal = ({ status }: AttentionProps) => {
       <div>
         <h3 className="text-3xl font-medium text-center mb-5">Attention</h3>
         <p className="text-sm font-medium tracking-[0.56px] text-center mb-10">
-          We would like to remind you that certain functionality is available
-          only to authorized users.If you have an account, please log in with
-          your credentials. If you do not already have an account, you must
-          register to access these features.
+          We would like to remind you that certain functionality is available only to authorized
+          users.If you have an account, please log in with your credentials. If you do not already
+          have an account, you must register to access these features.
         </p>
         <div className="md:flex items-center justify-center md:gap-5">
           <Auth handleClick={handleClick} status={status} />

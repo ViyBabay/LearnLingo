@@ -1,31 +1,19 @@
-import clsx from "clsx";
-import Image from "next/image";
+import { FC } from 'react';
+import clsx from 'clsx';
+import Image from 'next/image';
 
-interface TeacherAvatarProps {
-  name: string;
-  surname: string;
-  avatarUrl: string;
-  status: string;
-}
+import { TeacherAvatarProps } from '@/utils/definitions';
 
-export const TeacherAvatar = ({
-  name,
-  avatarUrl,
-  surname,
-  status,
-}: TeacherAvatarProps) => {
+export const TeacherAvatar: FC<TeacherAvatarProps> = ({ name, avatarUrl, surname, status }) => {
   return (
     <div
-      className={clsx(
-        "relative flex-shrink-0 mx-auto md:mx-0 p-3 mb-4 rounded-full border-[3px]",
-        {
-          "border-orange": status === "themaA",
-          "border-darkGreen": status === "themaB",
-          "border-darkBlue": status === "themaC",
-          "border-rose": status === "themaD",
-          "border-peach": status === "themaF",
-        }
-      )}
+      className={clsx('relative flex-shrink-0 mx-auto md:mx-0 p-3 mb-4 rounded-full border-[3px]', {
+        'border-orange': status === 'themaA',
+        'border-darkGreen': status === 'themaB',
+        'border-darkBlue': status === 'themaC',
+        'border-rose': status === 'themaD',
+        'border-peach': status === 'themaF',
+      })}
     >
       <Image
         src={avatarUrl}

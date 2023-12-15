@@ -1,96 +1,69 @@
-"use client";
+'use client';
 
-import React, { useState, useEffect, FC } from "react";
-import { TeacherItem } from "../TeacherItem/TeacherItem";
-import { getTeachersData, getFavorites } from "@/services/api";
-import { DocumentSnapshot } from "firebase/firestore";
-import { usePathname, useSearchParams } from "next/navigation";
-import { AttentionModal } from "../AttentionModal/AttentionModal";
-import { ButtonLoadMore } from "../ButtonLoadMore/ButtonLoadMore";
-import { onAuthStateChanged } from "firebase/auth";
-import { auth } from "@/firebase/config";
+import React, { useState, useEffect, FC } from 'react';
+import { usePathname } from 'next/navigation';
+import { onAuthStateChanged } from 'firebase/auth';
+import { DocumentSnapshot } from 'firebase/firestore';
+
+import { TeacherItem } from '../TeacherItem/TeacherItem';
+import { AttentionModal } from '../AttentionModal/AttentionModal';
+import { ButtonLoadMore } from '../ButtonLoadMore/ButtonLoadMore';
+import Modal from '../Modal/Modal';
+import { BookTrial } from '../BookTrial/BookTrial';
+
+import { auth } from '@/firebase/config';
+import { SearchParams, Teacher, Thema } from '@/utils/definitions';
+import { getTeachersData, getFavorites } from '@/services/api';
 
 interface TeacherListProps {
-  searchParams?: {
-    languages?: string;
-    level?: string;
-    price?: string;
-  };
-  status: string;
+  searchParams?: SearchParams;
+  status: Thema;
 }
 
-interface Review {
-  reviewer_name: string;
-  reviewer_rating: number;
-  comment: string;
-}
-
-interface Teacher {
-  id: string;
-  name: string;
-  surname: string;
-  languages: string[];
-  levels: {
-    [key: string]: boolean;
-  };
-  rating: number;
-  reviews: Review[];
-  price_per_hour: number;
-  lessons_done: number;
-  avatar_url: string;
-  lesson_info: string;
-  conditions: string[];
-  experience: string;
-}
-
-export const TeachersList: FC<TeacherListProps> = ({
-  searchParams,
-  status,
-}) => {
+export const TeachersList: FC<TeacherListProps> = ({ searchParams, status }) => {
   const [teachers, setTeachers] = useState<Teacher[]>([]);
-  console.log(`teachers:`, teachers);
   const [lastDoc, setLastDoc] = useState<DocumentSnapshot | null>(null);
-  console.log(`lastDoc:`, lastDoc);
-  const searchParamsAttention = useSearchParams();
+  const [pickedTeacher, setPickedTeacher] = useState<Teacher | null>(null);
   const pathname = usePathname();
-  console.log(`pathname:`, pathname);
 
-  const showAttention = searchParamsAttention.get("attention");
+  const showBookTrial = searchParams?.trial;
+
+  const showAttention = searchParams?.attention;
 
   const loadMoreTeachers = async () => {
     if (!lastDoc) return;
     const teachersData = await getTeachersData(searchParams, lastDoc);
-    console.log(`teachersData:`, teachersData);
-    setTeachers((prev) => [...prev, ...teachersData.teachers]);
+
+    setTeachers(prev => [...prev, ...teachersData.teachers]);
     setLastDoc(teachersData.lastVisible ?? null);
   };
 
   const loadMoreFavorites = async () => {
     if (!lastDoc) return;
     const favoritesData = await getFavorites(lastDoc);
-    setTeachers((prev) => [...prev, ...favoritesData.teachers]);
+    setTeachers((prev: Teacher[]) => [...prev, ...favoritesData.teachers]);
     setLastDoc(favoritesData.lastVisible ?? null);
   };
 
   useEffect(() => {
     const loadInitialData = async () => {
-      if (pathname === "/teachers") {
+      if (pathname === '/teachers') {
         const teachersData = await getTeachersData(searchParams);
-        console.log(`teachersData:`, teachersData);
+
         setTeachers(teachersData.teachers);
         setLastDoc(teachersData.lastVisible ?? null);
-      } else if (pathname === "/favorites") {
-        onAuthStateChanged(auth, async (user) => {
+      } else if (pathname === '/favorites') {
+        onAuthStateChanged(auth, async user => {
           if (user) {
             try {
               const favoritesData = await getFavorites();
               setTeachers(favoritesData.teachers);
               setLastDoc(favoritesData.lastVisible ?? null);
             } catch (error) {
-              console.error("Error loading favorite teachers:", error);
+              console.error('Error loading favorite teachers:', error);
             }
           } else {
-            console.error("User is not authorized");
+            console.error('User is not authorized');
           }
         });
       }
@@ -98,19 +71,33 @@ export const TeachersList: FC<TeacherListProps> = ({
     loadInitialData();
   }, [pathname, searchParams]);
 
-  const handleFavoriteChange = (teacherId) => {
-    setTeachers(teachers.filter((teacher) => teacher.id !== teacherId));
+  useEffect(() => {
+    if (showBookTrial) {
+      const teacherId = searchParams?.id;
+      const chosenTeacher = teachers.find(teacher => teacher.id === teacherId);
+      setPickedTeacher(chosenTeacher ? chosenTeacher : null);
+    }
+  }, [searchParams?.id, showBookTrial, teachers]);
+
+  const handleFavoriteChange = async () => {
+    try {
+      const favoritesData = await getFavorites();
+      setTeachers(favoritesData.teachers);
+      setLastDoc(favoritesData.lastVisible ?? null);
+    } catch (error) {
+      console.error('Error loading favorite teachers:', error);
+    }
   };
 
   return (
     <>
       <ul className="flex flex-col gap-y-8 mt-8">
-        {teachers.length === 0 ? (
+        {teachers.length === 0 && pathname === '/favorites' ? (
           <p>There is no teachers added yet</p>
         ) : (
-          teachers.map((item) => (
+          teachers.map(item => (
             <TeacherItem
-              onFavoriteChange={() => handleFavoriteChange(item.id)}
+              onFavoriteChange={handleFavoriteChange}
               key={`${item.id}-${status}`}
               item={item}
               status={status}
@@ -121,13 +108,20 @@ export const TeachersList: FC<TeacherListProps> = ({
 
       {lastDoc && teachers.length % 4 === 0 && (
         <ButtonLoadMore
-          loadMoreTeachers={
-            pathname === "/teachers" ? loadMoreTeachers : loadMoreFavorites
-          }
+          loadMoreTeachers={pathname === '/teachers' ? loadMoreTeachers : loadMoreFavorites}
           status={status}
         />
       )}
       {showAttention && <AttentionModal status={status} />}
+      {showBookTrial && pickedTeacher && (
+        <Modal variant="trial">
+          <BookTrial
+            name={pickedTeacher?.name}
+            surname={pickedTeacher?.surname}
+            avatarUrl={pickedTeacher?.avatar_url}
+          />
+        </Modal>
+      )}
     </>
   );
 };

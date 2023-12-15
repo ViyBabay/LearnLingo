@@ -1,12 +1,9 @@
-import Header from "@/components/Header/Header";
-import { Hero } from "@/components/Hero/Hero";
-import { LoginForm } from "@/components/LoginForm/LoginForm";
-import Modal from "@/components/Modal/Modal";
-import { RegisterForm } from "@/components/RegisterForm/RegisterForm";
-import { Statistics } from "@/components/Statistics/Statistics";
-import { statuses } from "@/utils/themaApi";
+import Header from '@/components/Header/Header';
+import { Hero } from '@/components/Hero/Hero';
+import { Statistics } from '@/components/Statistics/Statistics';
+import { statuses } from '@/utils/themaApi';
 
-export default async function Home() {
+const Home = async () => {
   const randomIndex = Math.floor(Math.random() * statuses.length);
   const status = statuses[randomIndex];
 
@@ -19,4 +16,6 @@ export default async function Home() {
       </main>
     </>
   );
-}
+};
+
+export default Home;

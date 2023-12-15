@@ -1,30 +1,30 @@
-"use client";
+'use client';
+import { useEffect, useState } from 'react';
+import { useMediaQuery } from 'react-responsive';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
+import { onAuthStateChanged } from 'firebase/auth';
 
-import { useEffect, useState } from "react";
-import { useMediaQuery } from "react-responsive";
+import { Logo } from '../Logo/Logo';
+import { NavLink } from '../NavLink/NavLink';
+import { Auth } from '../Auth/Auth';
+import { BurgerMenu } from '../BurgerMenu/BurgerMenu';
+import { HeaderSkeleton } from '../HeaderSkeleton/HeaderSkeleton';
+import { UserBar } from '../UserBar/UserBar';
+import Modal from '../Modal/Modal';
+import { LoginForm } from '../LoginForm/LoginForm';
+import { RegisterForm } from '../RegisterForm/RegisterForm';
+import { LogoutModal } from '../LogoutModal/LogoutModal';
 
-import { Logo } from "../Logo/Logo";
-import { NavLink } from "../NavLink/NavLink";
-import { Auth } from "../Auth/Auth";
-import { BurgerMenu } from "../BurgerMenu/BurgerMenu";
-import { HeaderSkeleton } from "../HeaderSkeleton/HeaderSkeleton";
-import { UserBar } from "../UserBar/UserBar";
-
-import { onAuthStateChanged } from "firebase/auth";
-import { auth } from "@/firebase/config";
-import Modal from "../Modal/Modal";
-import { LoginForm } from "../LoginForm/LoginForm";
-import { RegisterForm } from "../RegisterForm/RegisterForm";
-import { LogoutModal } from "../LogoutModal/LogoutModal";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { auth } from '@/firebase/config';
+import { Thema } from '@/utils/definitions';
 
 interface HeaderProps {
-  status: string;
+  status: Thema;
 }
 
 const Header: React.FC<HeaderProps> = ({ status }) => {
-  const isMobile = useMediaQuery({ query: "(max-width: 767px)" });
-  const isTablet = useMediaQuery({ query: "(min-width: 768px)" });
+  const isMobile = useMediaQuery({ query: '(max-width: 767px)' });
+  const isTablet = useMediaQuery({ query: '(min-width: 768px)' });
 
   const [showOnMobile, setShowOnMobile] = useState(false);
   const [showOnTablet, setShowOnTable] = useState(false);
@@ -37,26 +37,27 @@ const Header: React.FC<HeaderProps> = ({ status }) => {
   const router = useRouter();
   const pathName = usePathname();
 
-  const showLogin = searchParams.get("login");
-  const showRegistration = searchParams.get("registration");
-  const showLogout = searchParams.get("logout");
+  const showLogin = searchParams.get('login');
+  const showRegistration = searchParams.get('registration');
+  const showLogout = searchParams.get('logout');
 
   const handleClick = (path: string) => {
-    document.body.style.overflow = "hidden";
+    document.body.style.overflow = 'hidden';
     router.push(`${pathName}/?${path}=true`);
   };
 
   useEffect(() => {
     let isComponentMounted = true;
 
-    onAuthStateChanged(auth, (user) => {
+    onAuthStateChanged(auth, user => {
       if (user && isComponentMounted) {
         if (user.displayName) {
           setUserName(user.displayName);
           setIsLoggedIn(true);
         } else {
-          const timeoutId = setTimeout(() => {
-            setUserName(user.reload().then(() => user.displayName));
+          const timeoutId = setTimeout(async () => {
+            await user.reload();
+            setUserName(user.displayName);
             setIsLoggedIn(true);
           }, 1000);
           return () => {
@@ -91,19 +92,13 @@ const Header: React.FC<HeaderProps> = ({ status }) => {
               <>
                 <NavLink status={status} isLoggedIn={isLoggedIn} />
                 {isLoggedIn ? (
-                  <UserBar
-                    handleClick={handleClick}
-                    userName={userName}
-                    status={status}
-                  />
+                  <UserBar handleClick={handleClick} userName={userName} status={status} />
                 ) : (
                   <Auth handleClick={handleClick} status={status} />
                 )}
               </>
             )}
-            {showOnMobile && (
-              <BurgerMenu handleNavClick={handleClick} status={status} />
-            )}
+            {showOnMobile && <BurgerMenu handleNavClick={handleClick} status={status} />}
           </>
         )}
       </header>

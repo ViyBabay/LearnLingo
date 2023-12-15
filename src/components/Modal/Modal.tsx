@@ -1,28 +1,27 @@
-"use client";
+'use client';
 
-import { useCallback, useRef, useEffect, MouseEventHandler } from "react";
-import { useRouter } from "next/navigation";
-import { ModalPortal } from "../ModalPortal/ModalPortal";
-import { IoMdClose } from "react-icons/io";
+import { useCallback, useRef, useEffect, MouseEventHandler, FC } from 'react';
+import { useRouter } from 'next/navigation';
+import { ModalPortal } from '../ModalPortal/ModalPortal';
+import { IoMdClose } from 'react-icons/io';
 
-const Modal = ({
-  children,
-  variant,
-}: {
+interface ModalProps {
   children: React.ReactNode;
   variant?: string;
-}) => {
+}
+
+const Modal: FC<ModalProps> = ({ children, variant }) => {
   const overlay = useRef(null);
   const wrapper = useRef(null);
   const router = useRouter();
 
   const onDismiss = useCallback(() => {
-    document.body.style.overflow = "auto";
+    document.body.style.overflow = 'auto';
     router.back();
   }, [router]);
 
   const onClick: MouseEventHandler = useCallback(
-    (e) => {
+    e => {
       if (e.target === e.currentTarget) {
         if (onDismiss) onDismiss();
       }
@@ -32,14 +31,14 @@ const Modal = ({
 
   const onKeyDown = useCallback(
     (e: KeyboardEvent) => {
-      if (e.key === "Escape") onDismiss();
+      if (e.key === 'Escape') onDismiss();
     },
     [onDismiss]
   );
 
   useEffect(() => {
-    document.addEventListener("keydown", onKeyDown);
-    return () => document.removeEventListener("keydown", onKeyDown);
+    document.addEventListener('keydown', onKeyDown);
+    return () => document.removeEventListener('keydown', onKeyDown);
   }, [onKeyDown]);
 
   return (
@@ -47,7 +46,7 @@ const Modal = ({
       <div
         ref={overlay}
         className={`${
-          variant === "trial" ? "items-start py-10" : "items-center"
+          variant === 'trial' ? 'items-start py-10' : 'items-center'
         } fixed top-0 left-0 flex justify-center z-10 w-screen h-screen px-5 bg-lightBlack overflow-auto`}
         onClick={onClick}
       >

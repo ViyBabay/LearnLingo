@@ -1,56 +1,35 @@
-"use client";
+'use client';
 
-import { PiBookOpenLight, PiStarFill } from "react-icons/pi";
-import { TeacherAvatar } from "../TeacherAvatar/TeacherAvatar";
-import { TeacherLike } from "../TeacherLike/TeacherLike";
-import { TeacherReadMore } from "../TeacherReadMore/TeacherReadMore";
-import { TeacherButtonTrialLesson } from "../TeacherButtonTrialLesson/TeacherButtonTrialLesson";
-import { useEffect, useState } from "react";
-import { auth } from "@/firebase/config";
-import { User, onAuthStateChanged } from "firebase/auth";
-import { usePathname, useRouter } from "next/navigation";
-import { TeachersLevelsList } from "../TeachersLevelsList/TeachersLevelsList";
+import { FC, useEffect, useState } from 'react';
+import { PiBookOpenLight, PiStarFill } from 'react-icons/pi';
+import { usePathname, useRouter } from 'next/navigation';
+import { User, onAuthStateChanged } from 'firebase/auth';
 
-interface Review {
-  reviewer_name: string;
-  reviewer_rating: number;
-  comment: string;
-}
+import { TeacherAvatar } from '../TeacherAvatar/TeacherAvatar';
+import { TeacherLike } from '../TeacherLike/TeacherLike';
+import { TeacherReadMore } from '../TeacherReadMore/TeacherReadMore';
+import { TeacherButtonTrialLesson } from '../TeacherButtonTrialLesson/TeacherButtonTrialLesson';
+import { TeachersLevelsList } from '../TeachersLevelsList/TeachersLevelsList';
+
+import { auth } from '@/firebase/config';
+import { Teacher, Thema } from '@/utils/definitions';
 
 interface TeacherProps {
-  item: {
-    id: string;
-    name: string;
-    surname: string;
-    languages: string[];
-    levels: {
-      [key: string]: boolean;
-    };
-    rating: number;
-    reviews: Review[];
-    price_per_hour: number;
-    lessons_done: number;
-    avatar_url: string;
-    lesson_info: string;
-    conditions: string[];
-    experience: string;
-  };
-  status: string;
+  item: Teacher;
+  status: Thema;
+  onFavoriteChange: () => void;
 }
 
-export const TeacherItem = ({
-  item,
-  status,
-  onFavoriteChange,
-}: TeacherProps) => {
+export const TeacherItem: FC<TeacherProps> = ({ item, status, onFavoriteChange }) => {
   const [isOpen, setIsOpen] = useState(false);
+
   const [isUser, setIsUser] = useState<User | null>(null);
 
   const router = useRouter();
   const pathName = usePathname();
 
   useEffect(() => {
-    onAuthStateChanged(auth, (user) => {
+    onAuthStateChanged(auth, user => {
       if (user) {
         setIsUser(user);
       } else {
@@ -59,13 +38,22 @@ export const TeacherItem = ({
     });
   }, []);
 
-  const handleAuthCheck = (path: string) => {
-    document.body.style.overflow = "hidden";
-    router.push(`${pathName}/?${path}=true`);
+  const handleAuthCheck = (path: string, teacherId?: string | null) => {
+    if (teacherId) {
+      document.body.style.overflow = 'hidden';
+      router.push(`${pathName}/?${path}=true&id=${teacherId}`);
+    } else {
+      document.body.style.overflow = 'hidden';
+      router.push(`${pathName}/?${path}=true`);
+    }
   };
 
   const toggleDetails = () => {
-    setIsOpen((pre) => !pre);
+    if (isOpen) {
+      setIsOpen(false);
+    } else {
+      setIsOpen(true);
+    }
   };
 
   return (
@@ -95,16 +83,13 @@ export const TeacherItem = ({
               </li>
               <li>
                 <p>
-                  Price / 1 hour:{" "}
-                  <span className="text-green">{item.price_per_hour} $</span>
+                  Price / 1 hour: <span className="text-green">{item.price_per_hour} $</span>
                 </p>
               </li>
             </ul>
             <TeacherLike
-              onFavoriteChange={() => onFavoriteChange(item.id)}
-              handleAuthCheck={
-                isUser ? null : () => handleAuthCheck("attention")
-              }
+              onFavoriteChange={onFavoriteChange}
+              handleAuthCheck={isUser ? null : () => handleAuthCheck('attention')}
               id={item.id}
               isUser={isUser}
             />
@@ -116,21 +101,15 @@ export const TeacherItem = ({
             {item.name} {item.surname}
           </p>
           <p className="mb-2 font-medium leading-6 ">
-            <span className="text-greyLabel font-medium leading-6">
-              Speaks:{" "}
-            </span>
-            <span className="underline"> {item.languages.join(", ")}</span>
+            <span className="text-greyLabel font-medium leading-6">Speaks: </span>
+            <span className="underline"> {item.languages.join(', ')}</span>
           </p>
           <p className="mb-2 font-medium leading-6">
-            <span className="text-greyLabel font-medium leading-6">
-              Lesson info:{" "}
-            </span>
+            <span className="text-greyLabel font-medium leading-6">Lesson info: </span>
             {item.lesson_info}
           </p>
           <p className="mb-4 font-medium leading-6">
-            <span className="text-greyLabel font-medium leading-6">
-              Conditions:{" "}
-            </span>
+            <span className="text-greyLabel font-medium leading-6">Conditions: </span>
             {item.conditions}
           </p>
           <details>
@@ -144,16 +123,11 @@ export const TeacherItem = ({
             <TeacherReadMore item={item} status={status} />
           </details>
           <TeachersLevelsList levels={item.levels} />
-          {isOpen && (
-            <TeacherButtonTrialLesson
-              name={item.name}
-              surname={item.surname}
-              avatarUrl={item.avatar_url}
-              handleAuthCheck={() =>
-                handleAuthCheck(isUser ? "trial" : "attention")
-              }
-            />
-          )}
+          <TeacherButtonTrialLesson
+            handleAuthCheck={() =>
+              handleAuthCheck(isUser ? 'trial' : 'attention', isUser ? item.id : null)
+            }
+          />
         </div>
       </div>
     </li>

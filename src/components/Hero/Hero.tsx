@@ -5,9 +5,10 @@ import { FC } from 'react';
 
 import { AppleIcon } from '../AppleIcon/AppleIcon';
 import HeroImg from '../../../public/images/hero/hero.png';
+import { Thema } from '@/utils/definitions';
 
 interface HeroProps {
-  status: string;
+  status: Thema;
 }
 
 export const Hero: FC<HeroProps> = ({ status }) => {

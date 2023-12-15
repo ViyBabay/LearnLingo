@@ -1,6 +1,7 @@
 "use client";
+import ReactSelect, { ActionMeta, MultiValue, SingleValue } from "react-select";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import ReactSelect from "react-select";
+
 import { FC } from "react";
 import { getSelectStyles } from "@/utils/getSelectStyles";
 
@@ -8,6 +9,11 @@ interface SelectInputProps {
   label: string;
   options: string[];
   width: string;
+}
+
+interface OptionType {
+  value: string;
+  label: string;
 }
 
 export const SelectInput: FC<SelectInputProps> = ({
@@ -22,8 +28,12 @@ export const SelectInput: FC<SelectInputProps> = ({
 
   const selectedValue = searchParams.get(queryParams) || "";
 
-  const handleChange = (selectedOption) => {
-    const value = selectedOption ? selectedOption.value : "";
+  const handleChange = (
+    selectedOption: SingleValue<OptionType> | MultiValue<OptionType>,
+    actionMeta: ActionMeta<OptionType>
+  ) => {
+    const singleValueOption = selectedOption as SingleValue<OptionType>;
+    const value = singleValueOption ? singleValueOption.value : "";
     const params = new URLSearchParams(searchParams.toString());
     params.set(queryParams, value);
 

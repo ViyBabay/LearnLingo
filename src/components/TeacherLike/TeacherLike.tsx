@@ -1,33 +1,34 @@
-"use client";
+'use client';
 
-import { auth, db } from "@/firebase/config";
-import { User } from "firebase/auth";
-import { deleteDoc, doc, onSnapshot, setDoc } from "firebase/firestore";
-import { usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
-import { VscHeartFilled } from "react-icons/vsc";
-import { VscHeart } from "react-icons/vsc";
+import { FC, useEffect, useState } from 'react';
+import { usePathname } from 'next/navigation';
+import { User } from 'firebase/auth';
+import { deleteDoc, doc, onSnapshot, setDoc } from 'firebase/firestore';
+import { VscHeart, VscHeartFilled } from 'react-icons/vsc';
+
+import { auth, db } from '@/firebase/config';
 
 interface TeacherLikeProps {
   id: string;
   handleAuthCheck: (() => void) | null;
   isUser: User | null;
+  onFavoriteChange: (() => void) | null;
 }
 
-export const TeacherLike = ({
+export const TeacherLike: FC<TeacherLikeProps> = ({
   id,
   isUser,
   handleAuthCheck,
   onFavoriteChange,
-}: TeacherLikeProps) => {
+}) => {
   const [like, setLike] = useState(false);
   const userId = auth.currentUser?.uid;
-  const favoritesDocRef = doc(db, "favorites", `${userId}_${id}`);
+  const favoritesDocRef = doc(db, 'favorites', `${userId}_${id}`);
   const pathname = usePathname();
 
   useEffect(() => {
     if (!userId) return;
-    const unsubscribe = onSnapshot(favoritesDocRef, (doc) => {
+    const unsubscribe = onSnapshot(favoritesDocRef, doc => {
       setLike(doc.exists());
     });
     return () => unsubscribe();
@@ -37,11 +38,11 @@ export const TeacherLike = ({
     if (handleAuthCheck) handleAuthCheck();
     if (!userId) return;
     try {
-      if (like && pathname === "/favorites") {
+      if (like && pathname === '/favorites') {
         await deleteDoc(favoritesDocRef);
         if (onFavoriteChange) onFavoriteChange();
       } else {
-        setLike((pre) => !pre);
+        setLike(pre => !pre);
         if (like) {
           await deleteDoc(favoritesDocRef);
         } else {
@@ -49,7 +50,7 @@ export const TeacherLike = ({
         }
       }
     } catch (error) {
-      console.error("error ", error);
+      console.error('error ', error);
     }
   };
 

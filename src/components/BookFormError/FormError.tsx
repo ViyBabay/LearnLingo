@@ -1,18 +1,23 @@
 import { ErrorMessage } from "formik";
+import { FormikTouched, FormikErrors } from "formik";
+import { FC } from "react";
 
-export const FormError = ({ name }) => {
+interface FormErrorProps {
+  name: string;
+  touched: FormikTouched<{
+    picked: string;
+    name: string;
+    email: string;
+    phone: string;
+  }>;
+  errors: FormikErrors<{
+    picked: string;
+    name: string;
+    email: string;
+    phone: string;
+  }>;
+}
+
+export const FormError: FC<FormErrorProps> = ({ name }) => {
   return <ErrorMessage name={name} render={(message) => <p>{message}</p>} />;
 };
-
-// export const ErrorText = styled.p`
-//   width: 100%;
-
-//   color: ${({ theme }) => theme.colors.red};
-//   font-style: italic;
-//   font-size: ${({ theme }) => theme.fontSizes.xs};
-//   text-align: center;
-
-//   @media screen and (max-width: 768px) {
-//     text-align: center;
-//   }
-// `;

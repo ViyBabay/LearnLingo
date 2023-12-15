@@ -1,26 +1,17 @@
-"use client";
+'use client';
 
-import { useSearchParams } from "next/navigation";
-import { BookTrial } from "../BookTrial/BookTrial";
-import Modal from "../Modal/Modal";
+import { useSearchParams } from 'next/navigation';
+import { BookTrial } from '../BookTrial/BookTrial';
+import Modal from '../Modal/Modal';
+import { FC } from 'react';
 
 interface TeacherButtonTrialLessonProps {
   handleAuthCheck: () => void;
-  name: string;
-  surname: string;
-  avatarUrl: string;
 }
 
-export const TeacherButtonTrialLesson = ({
-  name,
-  surname,
-  avatarUrl,
+export const TeacherButtonTrialLesson: FC<TeacherButtonTrialLessonProps> = ({
   handleAuthCheck,
-}: TeacherButtonTrialLessonProps) => {
-  const searchParams = useSearchParams();
-
-  const showBookTrial = searchParams.get("trial");
-
+}) => {
   return (
     <>
       <button
@@ -30,11 +21,6 @@ export const TeacherButtonTrialLesson = ({
       >
         Book trial lesson
       </button>
-      {showBookTrial && (
-        <Modal variant="trial">
-          <BookTrial name={name} surname={surname} avatarUrl={avatarUrl} />
-        </Modal>
-      )}
     </>
   );
 };

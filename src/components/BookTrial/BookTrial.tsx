@@ -1,13 +1,11 @@
-import { BookForm } from "../BookForm/BookForm";
-import { BookTrialHead } from "../BookTrialHead/BookTrialHead";
+import { FC } from 'react';
 
-interface TeacherAvatarProps {
-  name: string;
-  surname: string;
-  avatarUrl: string;
-}
+import { BookForm } from '../BookForm/BookForm';
+import { BookTrialHead } from '../BookTrialHead/BookTrialHead';
 
-export const BookTrial = ({ name, avatarUrl, surname }: TeacherAvatarProps) => {
+import { TeacherAvatarProps } from '@/utils/definitions';
+
+export const BookTrial: FC<TeacherAvatarProps> = ({ name, avatarUrl, surname }) => {
   return (
     <div className="flex flex-col gap-10 md:p-6">
       <BookTrialHead name={name} avatarUrl={avatarUrl} surname={surname} />
