@@ -1,36 +1,58 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# Learn Lingo 🌍
 
-## Getting Started
+![LearnLingo](/public/images/header/logo.svg) [Live App](https://learn-lingo-op.vercel.app/)
 
-First, run the development server:
+## Project Description
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+Welcome to the Learn Lingo repository! This app offers a unique and interactive platform to
+connect with language tutors from around the globe. It's designed to make language learning
+accessible, flexible, and personalized. Whether you're a beginner or advanced learner, our app
+provides a variety of teachers to choose from based on language, expertise level, and price.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 📋 Features
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- **Home Page:** Explore the benefits of our language learning services with a direct link to view
+  our teachers.
+- **Teacher Listings:** A comprehensive list of language teachers, filterable by language, student
+  level, and price per hour.
+- **Favorite Teachers:** Personalize your experience by adding your favorite teachers to a private
+  "Favorites" page for easy access.
+- **User Authentication:** Secure login and registration functionality using Firebase.
+- **Interactive Teacher Cards:** Engaging cards displaying key information about each teacher, with
+  options to read more, book a trial lesson, or add to favorites.
+- **Responsive Design:** Accessible on devices of all sizes, from mobile to desktop.
 
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
+## 🛠️ Technologies Used
 
-## Learn More
+- Frontend: Next.js, Typescript, styled using Tailwind CSS
+- Backend: Firebase for authentication and Firestore Database
+- Deployment: Vercel
 
-To learn more about Next.js, take a look at the following resources:
+## 🚀 Getting Started
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+1. Clone the repository: `https://github.com/ViyBabay/LearnLingo`
+2. Navigate to the project directory: `cd learn-lingo`
+3. Install dependencies: `npm install`
+4. Start the project: `npm run dev`
+5. Visit `http://localhost:3000` in your browser.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
+## 🌐 Deployment
 
-## Deploy on Vercel
+The application is also deployed using [Vercel](https://vercel.com/) at
+[https://learn-lingo-op.vercel.app/](https://learn-lingo-op.vercel.app/).
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## 📝 Note for Developers
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+Refer to Firebase's documentation for details on working with the Firestore Database and
+authentication features.
+
+## 🌟 Advanced Features
+
+- Added dynamic filtering options for teachers based on language, student level, and price.
+
+## 📐 Design and Layout
+
+The application is designed to be flexible and responsive, ensuring a seamless experience from
+mobile to desktop views.
+
+Happy Learning! 🌍
