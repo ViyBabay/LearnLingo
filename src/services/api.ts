@@ -1,5 +1,5 @@
-import { auth, db } from '@/firebase/config';
-import { FirebaseError } from 'firebase/app';
+import { auth, db } from "@/firebase/config";
+import { FirebaseError } from "firebase/app";
 
 import {
   signInWithEmailAndPassword,
@@ -7,7 +7,7 @@ import {
   createUserWithEmailAndPassword,
   updateProfile,
   User as FirebaseUser,
-} from 'firebase/auth';
+} from "firebase/auth";
 import {
   DocumentSnapshot,
   collection,
@@ -18,9 +18,14 @@ import {
   query,
   startAfter,
   where,
-} from 'firebase/firestore';
+} from "firebase/firestore";
 
-import { LoginParamsApi, RegisterParamsApi, Teacher, UserData } from '@/utils/definitions';
+import {
+  LoginParamsApi,
+  RegisterParamsApi,
+  Teacher,
+  UserData,
+} from "@/utils/definitions";
 
 interface SearchParams {
   languages?: string;
@@ -39,7 +44,11 @@ export const register = async ({
   password,
 }: RegisterParamsApi): Promise<UserData | void> => {
   try {
-    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+    const userCredential = await createUserWithEmailAndPassword(
+      auth,
+      email,
+      password
+    );
 
     const user = userCredential.user;
 
@@ -58,13 +67,20 @@ export const register = async ({
     }
   } catch (error) {
     const firebaseError = error as FirebaseError;
-    throw new Error(firebaseError.message);
+    throw new Error(firebaseError.code);
   }
 };
 
-export const login = async ({ email, password }: LoginParamsApi): Promise<UserData | void> => {
+export const login = async ({
+  email,
+  password,
+}: LoginParamsApi): Promise<UserData | void> => {
   try {
-    const userCredential = await signInWithEmailAndPassword(auth, email, password);
+    const userCredential = await signInWithEmailAndPassword(
+      auth,
+      email,
+      password
+    );
     const user = userCredential.user;
     const data = {
       name: user.displayName,
@@ -89,16 +105,22 @@ export const logout = async (): Promise<void> => {
 
 export const getAllTeachersForFilters = async () => {
   try {
-    const teachersCollection = collection(db, 'teachers');
+    const teachersCollection = collection(db, "teachers");
     const teachersSnapshot = await getDocs(teachersCollection);
 
-    const teachersData = teachersSnapshot.docs.map(doc => doc.data());
+    const teachersData = teachersSnapshot.docs.map((doc) => doc.data());
 
-    const uniqueLanguages = [...new Set(teachersData.flatMap(teacher => teacher.languages))].sort();
-    const uniqueLevels = [
-      ...new Set(teachersData.flatMap(teacher => Object.keys(teacher.levels))),
+    const uniqueLanguages = [
+      ...new Set(teachersData.flatMap((teacher) => teacher.languages)),
     ].sort();
-    const uniquePrices = [...new Set(teachersData.map(teacher => teacher.price_per_hour))].sort();
+    const uniqueLevels = [
+      ...new Set(
+        teachersData.flatMap((teacher) => Object.keys(teacher.levels))
+      ),
+    ].sort();
+    const uniquePrices = [
+      ...new Set(teachersData.map((teacher) => teacher.price_per_hour)),
+    ].sort();
 
     return {
       uniqueLanguages,
@@ -117,18 +139,18 @@ export const getTeachersData = async (
 ): Promise<Result> => {
   const { languages, level, price } = searchParams;
   const pageSize = 4;
-  let q = query(collection(db, 'teachers'));
+  let q = query(collection(db, "teachers"));
 
-  if (languages && languages !== '---') {
-    q = query(q, where('languages', 'array-contains', languages));
+  if (languages && languages !== "---") {
+    q = query(q, where("languages", "array-contains", languages));
   }
-  if (level && level !== '---') {
-    q = query(q, where(`levels.${level}`, '==', true));
+  if (level && level !== "---") {
+    q = query(q, where(`levels.${level}`, "==", true));
   }
-  if (price && price !== '---') {
+  if (price && price !== "---") {
     const priceNumber = parseInt(price);
     if (!isNaN(priceNumber)) {
-      q = query(q, where('price_per_hour', '==', priceNumber));
+      q = query(q, where("price_per_hour", "==", priceNumber));
     }
   }
 
@@ -145,15 +167,17 @@ export const getTeachersData = async (
     if (auth.currentUser) {
       const userId = auth.currentUser.uid;
       const favoritesSnapshot = await getDocs(
-        query(collection(db, 'favorites'), where('userId', '==', userId))
+        query(collection(db, "favorites"), where("userId", "==", userId))
       );
 
-      favoriteTeacherIds = favoritesSnapshot.docs.map(doc => doc.data().teacherId);
+      favoriteTeacherIds = favoritesSnapshot.docs.map(
+        (doc) => doc.data().teacherId
+      );
     } else {
-      console.log('User is not logged in, skipping favorites query.');
+      console.log("User is not logged in, skipping favorites query.");
     }
 
-    const teachers: Teacher[] = documentSnapshots.docs.map(doc => {
+    const teachers: Teacher[] = documentSnapshots.docs.map((doc) => {
       const isFavorite = favoriteTeacherIds.includes(doc.id);
       return {
         id: doc.id,
@@ -162,12 +186,13 @@ export const getTeachersData = async (
       } as Teacher;
     });
 
-    const lastVisible = documentSnapshots.docs[documentSnapshots.docs.length - 1];
+    const lastVisible =
+      documentSnapshots.docs[documentSnapshots.docs.length - 1];
 
     return { teachers, lastVisible };
   } catch (error) {
     const firebaseError = error as FirebaseError;
-    throw new Error('Error in getTeachersData: ' + firebaseError.message);
+    throw new Error("Error in getTeachersData: " + firebaseError.message);
   }
 };
 
@@ -177,11 +202,11 @@ export const getFavorites = async (
 ) => {
   const userId = auth.currentUser?.uid;
   if (!userId) {
-    throw new Error('User is not authorized');
+    throw new Error("User is not authorized");
   }
 
   try {
-    let q = query(collection(db, 'favorites'), where('userId', '==', userId));
+    let q = query(collection(db, "favorites"), where("userId", "==", userId));
 
     if (lastDoc) {
       q = query(q, startAfter(lastDoc), limit(pageSize));
@@ -190,11 +215,11 @@ export const getFavorites = async (
     }
 
     const querySnapshot = await getDocs(q);
-    const favorites = querySnapshot.docs.map(doc => doc.data().teacherId);
+    const favorites = querySnapshot.docs.map((doc) => doc.data().teacherId);
 
     const teachers = [];
     for (const teacherId of favorites) {
-      const docRef = doc(db, 'teachers', teacherId);
+      const docRef = doc(db, "teachers", teacherId);
       const docSnap = await getDoc(docRef);
       if (docSnap.exists()) {
         const teacherData = docSnap.data() as Teacher;
@@ -209,7 +234,7 @@ export const getFavorites = async (
     const lastVisible = querySnapshot.docs[querySnapshot.docs.length - 1];
     return { teachers, lastVisible };
   } catch (error) {
-    console.error('Error:', error);
+    console.error("Error:", error);
     throw error;
   }
 };

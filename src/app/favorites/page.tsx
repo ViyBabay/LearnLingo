@@ -1,12 +1,12 @@
-'use client';
-import clsx from 'clsx';
-import { FC } from 'react';
+"use client";
+import clsx from "clsx";
+import { FC } from "react";
 
-import Header from '@/components/Header/Header';
-import { TeachersList } from '@/components/TeachersList/TeachersList';
+import Header from "@/components/Header/Header";
+import { TeachersList } from "@/components/TeachersList/TeachersList";
 
-import { SearchParams } from '@/utils/definitions';
-import { statuses } from '@/utils/themaApi';
+import { SearchParams } from "@/utils/definitions";
+import { statuses } from "@/utils/themaApi";
 
 interface FavoritesPageProps {
   searchParams: SearchParams;
@@ -20,15 +20,18 @@ const FavoritesPage: FC<FavoritesPageProps> = ({ searchParams }) => {
     <>
       <Header status={status} />
       <main
-        className={clsx('flex min-h-screen max-w-[1440px] mx-auto flex-col items-center px-5', {
-          'bg-lightOrange': status === 'themaA',
-          'bg-lightGreen': status === 'themaB',
-          'bg-lightBlue': status === 'themaC',
-          'bg-lightRose': status === 'themaD',
-          'bg-lightPeach': status === 'themaF',
-        })}
+        className={clsx(
+          "flex min-h-screen max-w-[1440px] mx-auto flex-col items-center px-5",
+          {
+            "bg-lightOrange": status === "themaA",
+            "bg-lightGreen": status === "themaB",
+            "bg-lightBlue": status === "themaC",
+            "bg-lightRose": status === "themaD",
+            "bg-lightPeach": status === "themaF",
+          }
+        )}
       >
-        <section className="py-6 px-4 xl:px-[108px] w-full">
+        <section className="xl:px-[108px] w-full">
           <TeachersList searchParams={searchParams} status={status} />
         </section>
       </main>

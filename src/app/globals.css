@@ -9,7 +9,17 @@
 
   .active {
     position: relative;
-    text-decoration: none;
+    font-weight: 500;
+    font-size: 1.875rem;
+    line-height: 2rem;
+  }
+
+  @media only screen and (min-width: 768px) {
+    .active {
+      font-weight: 400;
+      font-size: 1rem;
+      line-height: 1.25rem;
+    }
   }
 
   .active::after {
@@ -21,5 +31,11 @@
     left: 0;
     background: currentColor;
     transition: width 0.3s ease-in-out;
+  }
+
+  @media only screen and (min-width: 768px) {
+    .active::after {
+      height: 2px;
+    }
   }
 }

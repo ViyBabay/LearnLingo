@@ -1,4 +1,4 @@
-export type Thema = 'themaA' | 'themaB' | 'themaC' | 'themaD' | 'themaF';
+export type Thema = "themaA" | "themaB" | "themaC" | "themaD" | "themaF";
 
 export interface SearchParams {
   languages?: string;
@@ -62,4 +62,11 @@ export interface TeacherAvatarProps {
   surname: string;
   avatarUrl: string;
   status?: Thema;
+}
+
+export interface BookTrialProps {
+  name: string;
+  surname: string;
+  avatarUrl: string;
+  teacherId: string;
 }

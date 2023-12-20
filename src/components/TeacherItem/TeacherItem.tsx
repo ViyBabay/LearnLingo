@@ -1,35 +1,37 @@
-'use client';
+"use client";
 
-import { FC, useEffect, useState } from 'react';
-import { PiBookOpenLight, PiStarFill } from 'react-icons/pi';
-import { usePathname, useRouter } from 'next/navigation';
-import { User, onAuthStateChanged } from 'firebase/auth';
+import { FC, useEffect, useState } from "react";
+import { PiBookOpenLight, PiStarFill } from "react-icons/pi";
+import { User, onAuthStateChanged } from "firebase/auth";
 
-import { TeacherAvatar } from '../TeacherAvatar/TeacherAvatar';
-import { TeacherLike } from '../TeacherLike/TeacherLike';
-import { TeacherReadMore } from '../TeacherReadMore/TeacherReadMore';
-import { TeacherButtonTrialLesson } from '../TeacherButtonTrialLesson/TeacherButtonTrialLesson';
-import { TeachersLevelsList } from '../TeachersLevelsList/TeachersLevelsList';
+import { TeacherAvatar } from "../TeacherAvatar/TeacherAvatar";
+import { TeacherLike } from "../TeacherLike/TeacherLike";
+import { TeacherReadMore } from "../TeacherReadMore/TeacherReadMore";
+import { TeacherButtonTrialLesson } from "../TeacherButtonTrialLesson/TeacherButtonTrialLesson";
+import { TeachersLevelsList } from "../TeachersLevelsList/TeachersLevelsList";
 
-import { auth } from '@/firebase/config';
-import { Teacher, Thema } from '@/utils/definitions';
+import { auth } from "@/firebase/config";
+import { Teacher, Thema } from "@/utils/definitions";
 
 interface TeacherProps {
   item: Teacher;
   status: Thema;
   onFavoriteChange: () => void;
+  handleAuthCheck: (path: string, id?: string | null) => void;
 }
 
-export const TeacherItem: FC<TeacherProps> = ({ item, status, onFavoriteChange }) => {
+export const TeacherItem: FC<TeacherProps> = ({
+  item,
+  status,
+  onFavoriteChange,
+  handleAuthCheck,
+}) => {
   const [isOpen, setIsOpen] = useState(false);
 
   const [isUser, setIsUser] = useState<User | null>(null);
 
-  const router = useRouter();
-  const pathName = usePathname();
-
   useEffect(() => {
-    onAuthStateChanged(auth, user => {
+    onAuthStateChanged(auth, (user) => {
       if (user) {
         setIsUser(user);
       } else {
@@ -37,16 +39,6 @@ export const TeacherItem: FC<TeacherProps> = ({ item, status, onFavoriteChange }
       }
     });
   }, []);
-
-  const handleAuthCheck = (path: string, teacherId?: string | null) => {
-    if (teacherId) {
-      document.body.style.overflow = 'hidden';
-      router.push(`${pathName}/?${path}=true&id=${teacherId}`);
-    } else {
-      document.body.style.overflow = 'hidden';
-      router.push(`${pathName}/?${path}=true`);
-    }
-  };
 
   const toggleDetails = () => {
     if (isOpen) {
@@ -83,13 +75,16 @@ export const TeacherItem: FC<TeacherProps> = ({ item, status, onFavoriteChange }
               </li>
               <li>
                 <p>
-                  Price / 1 hour: <span className="text-green">{item.price_per_hour} $</span>
+                  Price / 1 hour:{" "}
+                  <span className="text-green">{item.price_per_hour} $</span>
                 </p>
               </li>
             </ul>
             <TeacherLike
               onFavoriteChange={onFavoriteChange}
-              handleAuthCheck={isUser ? null : () => handleAuthCheck('attention')}
+              handleAuthCheck={
+                isUser ? null : () => handleAuthCheck("attention")
+              }
               id={item.id}
               isUser={isUser}
             />
@@ -101,15 +96,21 @@ export const TeacherItem: FC<TeacherProps> = ({ item, status, onFavoriteChange }
             {item.name} {item.surname}
           </p>
           <p className="mb-2 font-medium leading-6 ">
-            <span className="text-greyLabel font-medium leading-6">Speaks: </span>
-            <span className="underline"> {item.languages.join(', ')}</span>
+            <span className="text-greyLabel font-medium leading-6">
+              Speaks:{" "}
+            </span>
+            <span className="underline"> {item.languages.join(", ")}</span>
           </p>
           <p className="mb-2 font-medium leading-6">
-            <span className="text-greyLabel font-medium leading-6">Lesson info: </span>
+            <span className="text-greyLabel font-medium leading-6">
+              Lesson info:{" "}
+            </span>
             {item.lesson_info}
           </p>
           <p className="mb-4 font-medium leading-6">
-            <span className="text-greyLabel font-medium leading-6">Conditions: </span>
+            <span className="text-greyLabel font-medium leading-6">
+              Conditions:{" "}
+            </span>
             {item.conditions}
           </p>
           <details>
@@ -123,11 +124,16 @@ export const TeacherItem: FC<TeacherProps> = ({ item, status, onFavoriteChange }
             <TeacherReadMore item={item} status={status} />
           </details>
           <TeachersLevelsList levels={item.levels} />
-          <TeacherButtonTrialLesson
-            handleAuthCheck={() =>
-              handleAuthCheck(isUser ? 'trial' : 'attention', isUser ? item.id : null)
-            }
-          />
+          {isOpen && (
+            <TeacherButtonTrialLesson
+              handleAuthCheck={() =>
+                handleAuthCheck(
+                  isUser ? "trial" : "attention",
+                  isUser ? item.id : null
+                )
+              }
+            />
+          )}
         </div>
       </div>
     </li>

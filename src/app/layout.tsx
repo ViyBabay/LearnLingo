@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import { Roboto } from "next/font/google";
+import { ToastContainer } from "react-toastify";
 
 import "./globals.css";
+import "react-toastify/dist/ReactToastify.css";
 
 const roboto = Roboto({
   subsets: ["latin"],
@@ -23,6 +25,7 @@ export default async function RootLayout({
       <body className={roboto.className}>
         {children}
         <div id="modal-portal"></div>
+        <ToastContainer autoClose={2000} theme="light" />
       </body>
     </html>
   );

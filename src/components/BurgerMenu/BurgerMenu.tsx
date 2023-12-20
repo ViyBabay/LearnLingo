@@ -1,12 +1,12 @@
-import { FC, useEffect, useState } from 'react';
-import { RxHamburgerMenu } from 'react-icons/rx';
+import { FC, useEffect, useState } from "react";
+import { RxHamburgerMenu } from "react-icons/rx";
 
-import { NavLink } from '../NavLink/NavLink';
-import { Auth } from '../Auth/Auth';
-import { UserBar } from '../UserBar/UserBar';
+import { NavLink } from "../NavLink/NavLink";
+import { Auth } from "../Auth/Auth";
+import { UserBar } from "../UserBar/UserBar";
 
-import { auth } from '@/firebase/config';
-import { Thema } from '@/utils/definitions';
+import { auth } from "@/firebase/config";
+import { Thema } from "@/utils/definitions";
 
 interface BurgerProps {
   status: Thema;
@@ -20,7 +20,7 @@ export const BurgerMenu: FC<BurgerProps> = ({ status, handleNavClick }) => {
   const [isLoggedIn, setIsLoggedIn] = useState<boolean | null>(null);
 
   useEffect(() => {
-    const unsubscribe = auth.onAuthStateChanged(user => {
+    const unsubscribe = auth.onAuthStateChanged((user) => {
       if (user) {
         setUserName(user.displayName);
         setIsLoggedIn(true);
@@ -33,14 +33,14 @@ export const BurgerMenu: FC<BurgerProps> = ({ status, handleNavClick }) => {
 
   const toggleMenu = () => {
     const body = document.body;
-    const newOverflow = body.style.overflow === 'hidden' ? 'auto' : 'hidden';
+    const newOverflow = body.style.overflow === "hidden" ? "auto" : "hidden";
 
     body.style.overflow = newOverflow;
-    setIsOpen(prevIsOpen => !prevIsOpen);
+    setIsOpen((prevIsOpen) => !prevIsOpen);
   };
 
   const handleClick = (path: string) => {
-    document.body.style.overflow = 'hidden';
+    document.body.style.overflow = "hidden";
     if (toggleMenu) toggleMenu();
     handleNavClick(path);
   };
@@ -50,10 +50,18 @@ export const BurgerMenu: FC<BurgerProps> = ({ status, handleNavClick }) => {
       <RxHamburgerMenu size={30} onClick={toggleMenu} />
       {isOpen && (
         <div className="absolute top-[50px] left-0 z-40 min-h-screen min-w-full border-2 bg-white">
-          <div className="flex flex-col gap-32 items-center mt-40 ">
-            <NavLink toggleMenu={toggleMenu} />
+          <div className="flex flex-col gap-24 items-center mt-24 ">
+            <NavLink
+              toggleMenu={toggleMenu}
+              isLoggedIn={isLoggedIn}
+              status={status}
+            />
             {isLoggedIn ? (
-              <UserBar handleClick={handleClick} userName={userName} status={status} />
+              <UserBar
+                handleClick={handleClick}
+                userName={userName}
+                status={status}
+              />
             ) : (
               <Auth handleClick={handleClick} status={status} />
             )}

@@ -1,1 +1,3 @@
-export const statuses = ['themaA', 'themaB', 'themaC', 'themaD', 'themaF'];
+import { Thema } from "./definitions";
+
+export const statuses:Thema[] = ['themaA', 'themaB', 'themaC', 'themaD', 'themaF'];

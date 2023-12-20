@@ -1,30 +1,35 @@
-'use client';
+"use client";
 
-import React, { useState, useEffect, FC } from 'react';
-import { usePathname } from 'next/navigation';
-import { onAuthStateChanged } from 'firebase/auth';
-import { DocumentSnapshot } from 'firebase/firestore';
+import React, { useState, useEffect, FC } from "react";
+import { usePathname, useRouter } from "next/navigation";
+import { onAuthStateChanged } from "firebase/auth";
+import { DocumentSnapshot } from "firebase/firestore";
 
-import { TeacherItem } from '../TeacherItem/TeacherItem';
-import { AttentionModal } from '../AttentionModal/AttentionModal';
-import { ButtonLoadMore } from '../ButtonLoadMore/ButtonLoadMore';
-import Modal from '../Modal/Modal';
-import { BookTrial } from '../BookTrial/BookTrial';
+import { TeacherItem } from "../TeacherItem/TeacherItem";
+import { AttentionModal } from "../AttentionModal/AttentionModal";
+import { ButtonLoadMore } from "../ButtonLoadMore/ButtonLoadMore";
+import Modal from "../Modal/Modal";
+import { BookTrial } from "../BookTrial/BookTrial";
 
-import { auth } from '@/firebase/config';
-import { SearchParams, Teacher, Thema } from '@/utils/definitions';
-import { getTeachersData, getFavorites } from '@/services/api';
+import { auth } from "@/firebase/config";
+import { SearchParams, Teacher, Thema } from "@/utils/definitions";
+import { getTeachersData, getFavorites } from "@/services/api";
+import { NoFavorites } from "../NoFavorites/NoFavorites";
 
 interface TeacherListProps {
   searchParams?: SearchParams;
   status: Thema;
 }
 
-export const TeachersList: FC<TeacherListProps> = ({ searchParams, status }) => {
+export const TeachersList: FC<TeacherListProps> = ({
+  searchParams,
+  status,
+}) => {
   const [teachers, setTeachers] = useState<Teacher[]>([]);
   const [lastDoc, setLastDoc] = useState<DocumentSnapshot | null>(null);
   const [pickedTeacher, setPickedTeacher] = useState<Teacher | null>(null);
   const pathname = usePathname();
+  const router = useRouter();
 
   const showBookTrial = searchParams?.trial;
 
@@ -34,7 +39,7 @@ export const TeachersList: FC<TeacherListProps> = ({ searchParams, status }) => 
     if (!lastDoc) return;
     const teachersData = await getTeachersData(searchParams, lastDoc);
 
-    setTeachers(prev => [...prev, ...teachersData.teachers]);
+    setTeachers((prev) => [...prev, ...teachersData.teachers]);
     setLastDoc(teachersData.lastVisible ?? null);
   };
 
@@ -47,37 +52,43 @@ export const TeachersList: FC<TeacherListProps> = ({ searchParams, status }) => 
 
   useEffect(() => {
     const loadInitialData = async () => {
-      if (pathname === '/teachers') {
+      if (pathname === "/teachers") {
         const teachersData = await getTeachersData(searchParams);
 
         setTeachers(teachersData.teachers);
         setLastDoc(teachersData.lastVisible ?? null);
-      } else if (pathname === '/favorites') {
-        onAuthStateChanged(auth, async user => {
+      } else if (pathname === "/favorites") {
+        onAuthStateChanged(auth, async (user) => {
           if (user) {
             try {
               const favoritesData = await getFavorites();
               setTeachers(favoritesData.teachers);
               setLastDoc(favoritesData.lastVisible ?? null);
             } catch (error) {
-              console.error('Error loading favorite teachers:', error);
+              console.error("Error loading favorite teachers:", error);
             }
           } else {
-            console.error('User is not authorized');
+            console.error("User is not authorized");
           }
         });
       }
     };
     loadInitialData();
-  }, [pathname, searchParams]);
+  }, [pathname]);
 
-  useEffect(() => {
-    if (showBookTrial) {
-      const teacherId = searchParams?.id;
-      const chosenTeacher = teachers.find(teacher => teacher.id === teacherId);
+  const handleAuthCheck = (path: string, teacherId?: string | null) => {
+    if (teacherId) {
+      document.body.style.overflow = "hidden";
+      router.push(`${pathname}/?${path}=true`);
+      const chosenTeacher = teachers.find(
+        (teacher) => teacher.id === teacherId
+      );
       setPickedTeacher(chosenTeacher ? chosenTeacher : null);
+    } else {
+      document.body.style.overflow = "hidden";
+      router.push(`${pathname}/?${path}=true`);
     }
-  }, [searchParams?.id, showBookTrial, teachers]);
+  };
 
   const handleFavoriteChange = async () => {
     try {
@@ -85,19 +96,20 @@ export const TeachersList: FC<TeacherListProps> = ({ searchParams, status }) => 
       setTeachers(favoritesData.teachers);
       setLastDoc(favoritesData.lastVisible ?? null);
     } catch (error) {
-      console.error('Error loading favorite teachers:', error);
+      console.error("Error loading favorite teachers:", error);
     }
   };
 
   return (
     <>
       <ul className="flex flex-col gap-y-8 mt-8">
-        {teachers.length === 0 && pathname === '/favorites' ? (
-          <p>There is no teachers added yet</p>
+        {teachers.length === 0 && pathname === "/favorites" ? (
+          <NoFavorites />
         ) : (
-          teachers.map(item => (
+          teachers.map((item) => (
             <TeacherItem
               onFavoriteChange={handleFavoriteChange}
+              handleAuthCheck={handleAuthCheck}
               key={`${item.id}-${status}`}
               item={item}
               status={status}
@@ -108,7 +120,9 @@ export const TeachersList: FC<TeacherListProps> = ({ searchParams, status }) => 
 
       {lastDoc && teachers.length % 4 === 0 && (
         <ButtonLoadMore
-          loadMoreTeachers={pathname === '/teachers' ? loadMoreTeachers : loadMoreFavorites}
+          loadMoreTeachers={
+            pathname === "/teachers" ? loadMoreTeachers : loadMoreFavorites
+          }
           status={status}
         />
       )}
@@ -119,6 +133,7 @@ export const TeachersList: FC<TeacherListProps> = ({ searchParams, status }) => 
             name={pickedTeacher?.name}
             surname={pickedTeacher?.surname}
             avatarUrl={pickedTeacher?.avatar_url}
+            teacherId={pickedTeacher.id}
           />
         </Modal>
       )}
