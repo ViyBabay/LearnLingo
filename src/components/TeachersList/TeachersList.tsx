@@ -30,10 +30,12 @@ export const TeachersList: FC<TeacherListProps> = ({
   const [pickedTeacher, setPickedTeacher] = useState<Teacher | null>(null);
   const pathname = usePathname();
   const router = useRouter();
+  console.log(searchParams);
 
   const showBookTrial = searchParams?.trial;
-
   const showAttention = searchParams?.attention;
+
+  const { trial, attention, ...otherSearchParams } = searchParams ?? {};
 
   const loadMoreTeachers = async () => {
     if (!lastDoc) return;
@@ -53,7 +55,7 @@ export const TeachersList: FC<TeacherListProps> = ({
   useEffect(() => {
     const loadInitialData = async () => {
       if (pathname === "/teachers") {
-        const teachersData = await getTeachersData(searchParams);
+        const teachersData = await getTeachersData(otherSearchParams);
 
         setTeachers(teachersData.teachers);
         setLastDoc(teachersData.lastVisible ?? null);
@@ -74,11 +76,15 @@ export const TeachersList: FC<TeacherListProps> = ({
       }
     };
     loadInitialData();
-  }, [pathname]);
+  }, [pathname, JSON.stringify(otherSearchParams)]);
 
   const handleAuthCheck = (path: string, teacherId?: string | null) => {
     if (teacherId) {
       document.body.style.overflow = "hidden";
+      // const currentParams = new URLSearchParams(window.location.search);
+      // currentParams.set(path, "true");
+      // currentParams.set("teacherId", teacherId);
+      // router.push(`${pathname}/?${currentParams.toString()}`);
       router.push(`${pathname}/?${path}=true`);
       const chosenTeacher = teachers.find(
         (teacher) => teacher.id === teacherId
@@ -86,6 +92,11 @@ export const TeachersList: FC<TeacherListProps> = ({
       setPickedTeacher(chosenTeacher ? chosenTeacher : null);
     } else {
       document.body.style.overflow = "hidden";
+      // const currentParams = new URLSearchParams(window.location.search);
+      // currentParams.set(path, "true");
+
+      // router.push(`${pathname}/?${currentParams.toString()}`);
+
       router.push(`${pathname}/?${path}=true`);
     }
   };
