@@ -11,8 +11,8 @@ export const NoFavorites = () => {
           ariaLabel="MagnifyingGlass-loading"
           wrapperStyle={{}}
           wrapperClass="MagnifyingGlass-wrapper"
-          glassColor="#c0efff"
-          color="#e15b64"
+          glassColor="#36c0ee"
+          color="#d70e1c"
         />
 
         <p className="text-3xl lg:text-4xl xl:text-5xl text-center font-medium leading-tight tracking-tight lg:leading-[48px] lg:tracking-[-0.64px] mt-5">
